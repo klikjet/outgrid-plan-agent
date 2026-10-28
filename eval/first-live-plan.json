@@ -1,0 +1,176 @@
+{
+  "plan_id": "plan-bacalar-2026-11-09",
+  "destination_id": "bacalar",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "City cost baseline",
+          "detail": "Monthly cost is 1100 USD.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.bacalar.monthly_cost_usd"
+          ]
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Rent figure not in record",
+          "detail": "rent_usd is null in the record, so a mid-tier rent figure cannot be confirmed from the record.",
+          "claim_type": "stay",
+          "source_refs": [
+            "cities.bacalar.rent_usd"
+          ],
+          "unverifiable": true
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Focused work at Café La Playita",
+          "detail": "Work time at Café La Playita (WiFi). City internet is listed as 20 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.bacalar.coworking[0]",
+            "cities.bacalar.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-09-i4",
+          "title": "Lagoon Sailboat Sunset Tour",
+          "detail": "Lagoon Sailboat Sunset Tour, duration 3h, price 25 to 45 USD.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.bacalar.experiences[0].name",
+            "cities.bacalar.experiences[0].duration",
+            "cities.bacalar.experiences[0].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-09-i5",
+          "title": "Keep pace balanced",
+          "detail": "Keep the morning slow and leave buffer around work and the afternoon tour.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Paddleboard Sunrise",
+          "detail": "Paddleboard Sunrise (flat water, zero waves), duration 2h, price 10 to 20 USD.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.bacalar.experiences[3].name",
+            "cities.bacalar.experiences[3].duration",
+            "cities.bacalar.experiences[3].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Cenote Azul Swim & Snorkel",
+          "detail": "Cenote Azul Swim & Snorkel, duration 3h, price 5 to 15 USD.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.bacalar.experiences[1].name",
+            "cities.bacalar.experiences[1].duration",
+            "cities.bacalar.experiences[1].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Focused work with hostel WiFi",
+          "detail": "Work time using Most hostels: 15-25 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.bacalar.coworking[2]"
+          ]
+        },
+        {
+          "id": "2026-11-10-i4",
+          "title": "Slow morning and movement",
+          "detail": "Keep the morning slow; leave time for a run and bodyweight session if you want.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Fuerte San Felipe Fort History Tour",
+          "detail": "Fuerte San Felipe Fort History Tour, duration 2h, price 3 to 8 USD.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.bacalar.experiences[4].name",
+            "cities.bacalar.experiences[4].duration",
+            "cities.bacalar.experiences[4].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Focused work at Rancho Encantado",
+          "detail": "Work time at Rancho Encantado (resort WiFi).",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.bacalar.coworking[1]"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Light closing day",
+          "detail": "Leave the rest of the day open and keep the pace light.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 12,
+    "supported": 11,
+    "unsupported": 0,
+    "unverifiable": 1,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-28T16:01:00.814Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-28T16:01:08.713Z",
+      "summary": {
+        "checked": 12,
+        "supported": 11,
+        "unsupported": 0,
+        "unverifiable": 1
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-28T16:01:08.714Z",
+      "summary": {
+        "checked": 12,
+        "supported": 11,
+        "unsupported": 0,
+        "unverifiable": 1,
+        "dropped": 0
+      }
+    }
+  ]
+}

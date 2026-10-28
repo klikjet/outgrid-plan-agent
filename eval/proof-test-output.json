@@ -1,0 +1,27 @@
+{
+  "test": "verifier proof test — one invented claim injected into a published plan",
+  "injected_claim": {
+    "title": "Lagoonfront Luxury Resort & Spa",
+    "detail": "Stay at the Lagoonfront Luxury Resort & Spa — $340 per night, with a private dock and spa."
+  },
+  "actual_record": {
+    "city": "Bacalar",
+    "monthly_cost_usd": 1100,
+    "rent_usd": null,
+    "note": "The record contains no hotel named 'Lagoonfront Luxury Resort & Spa' and no $340/night price anywhere."
+  },
+  "verifier_model": "meta-models/muse-spark-open",
+  "verdict_for_injected_item": {
+    "item_id": "injected-fake-1",
+    "verdict": "unsupported",
+    "note": "Lagoonfront Luxury Resort & Spa and $340/night not in records, invented"
+  },
+  "summary": {
+    "checked": 13,
+    "supported": 11,
+    "unsupported": 1,
+    "unverifiable": 1
+  },
+  "result": "PASS — the Verifier caught the invented claim",
+  "timestamp": "2026-10-28T16:01:15.333Z"
+}

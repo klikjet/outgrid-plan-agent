@@ -17,7 +17,7 @@ destination data:
    needs — into a structured, day-by-day plan drawn **only** from Outgrid's
    destination records. Every factual item carries a source reference to the
    exact record field it came from.
-2. **Verifier** (Muse Spark Open — `meta-models/muse-spark-open-1026` — served
+2. **Verifier** (Muse Spark Open — `meta-models/muse-spark-open` — served
    via Baseten) checks every claim in the draft against those source records
    and returns a per-claim verdict: `supported`, `unsupported`, or
    `unverifiable`. Unsupported claims go back to the Planner once, with the
@@ -41,22 +41,28 @@ for this hackathon: no production code, and no live APIs — the demo runs
 entirely on the snapshot, so what you browse is exactly what the Planner
 is allowed to use.
 
+**First live run (Oct 28, 2026):** a real Bacalar plan written by Muse
+Spark and checked by Muse Spark Open — 12 claims checked, 11 supported,
+1 unverifiable, 0 dropped — and the proof test passed: an invented
+$340/night hotel slipped into the finished plan was caught and marked
+unsupported. Full evidence in `eval/`.
+
 ## Models
 
 | Role | Model | Served via |
 |---|---|---|
 | Planner | Muse Spark | Meta Model API |
-| Verifier | Muse Spark Open (`meta-models/muse-spark-open-1026`) | Baseten |
+| Verifier | Muse Spark Open (`meta-models/muse-spark-open`) | Baseten |
 
 ## Built during the hackathon (Oct 27 – Nov 4, 2026)
 
-- [ ] Intake form + Planner (Muse Spark) → structured itinerary JSON
-- [ ] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
-- [ ] Publish rule — verifier-gated; held plans never publish
+- [x] Intake form + Planner (Muse Spark) → structured itinerary JSON
+- [x] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
+- [x] Publish rule — verifier-gated; held plans never publish
 - [x] Browsable front-end recreating outgrid.io (home, country +
   destination pages) on the sample snapshot — no live APIs
 - [ ] Shareable trip page with per-item source citations
-- [ ] Verifier proof test + hero-destination eval (`/eval`)
+- [ ] Verifier proof test + hero-destination eval (`/eval`) — proof test passed Oct 28, see `eval/`
 
 ## Pre-existing Outgrid (not part of the judged build)
 
@@ -67,9 +73,15 @@ production Outgrid codebase.
 
 ## Running it
 
-Step 4 (landed Oct 28) ships the scaffold, the intake contract, and a
-deterministic Planner **stub** — no API calls yet. To see the stub plan
-for the hero destination (Bacalar):
+With both API keys set in the environment (see `.env.example`), run the
+real pipeline — Planner writes, Verifier checks, publish rule applies:
+
+```
+node src/live-cli.js examples/intake-bacalar.json            # first live plan
+node src/live-cli.js examples/intake-bacalar.json --inject-fake   # proof test
+```
+
+Without keys, a deterministic Planner **stub** shows the output shape:
 
 ```
 node src/cli.js examples/intake-bacalar.json
