@@ -149,13 +149,34 @@ const server = createServer(async (req, res) => {
           return { ok: false, error: `${err.name}: ${err.message}`.slice(0, 300), key_length: apiKey.length };
         }
       };
+      const probeModel = url.searchParams.get("model") || config.plannerModel;
       const [meta, baseten] = await Promise.all([
-        ping(config.metaBaseUrl, config.metaApiKey, config.plannerModel),
+        ping(config.metaBaseUrl, config.metaApiKey, probeModel),
         ping(config.basetenBaseUrl, config.basetenApiKey, config.verifierModel),
       ]);
+      // Also ask the Meta endpoint which models this key can actually
+      // see from THIS network (the public catalog may name models
+      // differently than the internal one). IDs only — no key material.
+      let metaModels = null;
+      if (config.metaApiKey) {
+        try {
+          const r = await fetch(`${config.metaBaseUrl}/models`, {
+            headers: { authorization: `Bearer ${config.metaApiKey}` },
+            signal: AbortSignal.timeout(30000),
+          });
+          if (r.ok) {
+            const data = await r.json();
+            metaModels = (data.data || []).map((m) => m.id).slice(0, 60);
+          } else {
+            metaModels = { error: `models list returned ${r.status}` };
+          }
+        } catch (err) {
+          metaModels = { error: `models list unreachable: ${err.message}` };
+        }
+      }
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify({
-        meta: { model: config.plannerModel, ...meta },
+        meta: { model: probeModel, ...meta, models_visible: metaModels },
         baseten: { model: config.verifierModel, ...baseten },
       }, null, 2));
     }
@@ -168,5 +189,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Outgrid Plan Agent (preview) → http://localhost:${PORT}`);
+  console.log(`Outgrid Plan Agent (${liveModelsReady(loadConfig()) ? "live models" : "preview"}) → http://localhost:${PORT}`);
 });
