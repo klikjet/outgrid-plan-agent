@@ -1,1 +1,460 @@
-[{"id":"canggu","country_id":"indonesia","name":"Canggu (Bali)","type":"beach","monthly_cost_usd":1200,"rent_usd":600,"internet_mbps":40,"safety_10":8,"vibe":["Surf","Nomad Hub","Cafes"],"note":"Iconic nomad hub. Dry season May–Sep ideal.","description":"Canggu is a coastal village in North Kuta, Badung Regency, about 10 km north-west of Kuta on Bali's south-west coast. The name now covers roughly 8 km of black-sand surf beaches from Berawa to Cemagi, where villas, cafés and beach clubs have replaced much of the rice land since about 2010. Numbeo's Bali figures put a cappuccino at about Rp40,000 and a cheap restaurant meal at Rp50,000. Most people get around by scooter or private car, and taxis can be hard to find. Coworkings such as Tropical Nomad, BWork and Tribal charge roughly Rp2.5–3.2 million a month for unlimited access. Indonesia's median fixed broadband is about 51 Mbps (Ookla). Bali runs on WITA (UTC+8), and Indonesia has a remote worker visa (E33G). Daytime highs stay around 29–32°C all year. Rain peaks from December to March (388 mm in January at Denpasar airport); June to September is the dry season, with August averaging 16 mm. Trade-offs: heavy traffic on narrow roads, construction spreading over the rice fields, strained groundwater, beaches that are poor for swimming, and a central one-bedroom around Rp17.5 million a month (Numbeo, Bali).","lat":-8.65,"lng":115.13,"neighbourhoods":[{"id":"batu-bolong","name":"Batu Bolong","about":"Canggu's busiest strip, running down to a temple beach","description":"Jalan Batu Bolong runs south-west through central Canggu to Batu Bolong Beach, where the old sea temple Pura Batu Bolong stands by the sand. The street is lined with brunch cafés, restaurants and bars, with Jalan Nelayan and Jalan Munduk Catu branching off it. This is the most walkable part of Canggu and the most popular with digital nomads, with names such as Old Man's, Milk & Madu and Sandbar along the way. Hotel Tugu Bali sits on Jalan Pantai Batu Bolong, and Nelayan Beach, still used by fishing boats in the early morning, is a short walk east. The trade-off is traffic: Batu Bolong is the area's busiest road, scooters and cars crawl at peak times, and the dark-sand beach is better for surfing than for swimming.","vibe":["Surf","Cafés","Busy","Nightlife"],"best_for":["First-timers","Remote work","Surfers"],"watch_out":["Heavy scooter and car traffic on Jalan Batu Bolong","Beach is better for surfing than swimming"],"rent_1br_usd":1100,"getting_around":"No rail or bus lines serve Canggu; most people ride scooters or use private cars, and taxis can be hard to find.","lat":-8.6595,"lng":115.1301,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/batu-bolong"},{"id":"berawa","name":"Berawa","about":"Most built-up stretch, with big beach clubs and spread-out villas","description":"Berawa lies at the southern end of the Canggu coast, inside Tibubeneng village, just north of Seminyak. Jalan Pantai Berawa runs down to Berawa Beach and carries most of the area's cafés, restaurants, shops and spas. The beach is home to some of Bali's biggest beach clubs, including FINNS Beach Club and Atlas Super Club, with Café del Mar a little further south. Upscale villas and resorts such as Desa Seni and the Legong Keraton Beach Hotel fill the lanes around the main road. Berawa is more spread out than Batu Bolong, so walking between places is less practical. It suits longer stays with a scooter or driver, and serviced apartments here are priced like those in Batu Bolong.","vibe":["Beach clubs","Upscale","Spread out","Modern"],"best_for":["Long stays","Couples","Families"],"watch_out":["Spread out; hard to get around without a scooter or driver"],"rent_1br_usd":1100,"getting_around":"Jalan Pantai Berawa is the main road to the beach; there is no rail or bus service, so most people ride scooters or use private cars.","lat":-8.6668,"lng":115.1394,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/berawa"},{"id":"echo-beach","name":"Echo Beach (Batu Mejan)","about":"Westernmost Canggu beach with surf breaks and sunset bars","description":"Echo Beach, also called Batu Mejan or Mejan Stone Beach, is the westernmost of Canggu's beaches before Pererenan. It sits at the end of Jalan Batu Mejan, near the old Pura Batu Mejan temple, and is known for challenging surf. The beachfront is lined with bars and restaurants that fill up at sunset, including the La Brisa beach club. COMO Uma Canggu and its COMO Beach Club sit just south along the sand, towards Batu Bolong. It is quieter than Batu Bolong but only a short ride away along the coast. The beach has dark grey sand and strong waves, so it suits surfers and people coming for the sunset more than swimmers.","vibe":["Surf","Sunsets","Laid-back","Beach bars"],"best_for":["Surfers","Couples","Short stays"],"watch_out":["Strong waves; not a swimming beach"],"rent_1br_usd":null,"getting_around":"Reached along Jalan Batu Mejan; there is no public transport, so scooters and private cars are the usual way in.","lat":-8.6548,"lng":115.1249,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/echo-beach"},{"id":"pererenan","name":"Pererenan","about":"Quieter village west of Echo Beach, with villas among the rice fields","description":"Pererenan is a separate village in Mengwi district, west of Canggu village and east of Munggu, with Pererenan Beach on its southern edge. The beach is known for big surf, and a tall Gajah Mina statue, half elephant and half fish, stands beside it. Jalan Pantai Pererenan has become a strip of upscale restaurants and spas such as Shelter and Mostly, while Jalan Babadan mixes budget guesthouses with new private villas. Sense Canggu Beach, a 4-star resort, is on Jalan Munduk Kedungu. It is calmer than Batu Bolong and still has rice fields between the villas, but it is developing fast. Places are spread out, and you will want a scooter to get around.","vibe":["Quiet","Rice fields","Villas","Surf"],"best_for":["Long stays","Couples","Surfers"],"watch_out":["Spread out; a scooter is close to essential"],"rent_1br_usd":null,"getting_around":"Jalan Pantai Pererenan and Jalan Babadan are the main roads; with no public transport and few taxis, most people ride scooters.","lat":-8.6417,"lng":115.1294,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/pererenan"},{"id":"seseh","name":"Seseh","about":"Black-sand beach and coconut groves between Canggu and Tanah Lot","description":"Seseh is a coastal village in Mengwi district, about 15 km north of Seminyak, between Canggu and Tanah Lot. Its wide black-sand beach is backed by coconut groves and rice fields, and the old sea temple Pura Seseh stands near the shore. Neighbouring Cemagi, a few kilometres north-west, shares the same coastline. A plan for a seven-storey resort on Seseh Beach drew protests in 2023 and was redesigned lower-rise; it has since been rebranded as an Anantara. Udara Bali, a yoga and spa retreat, is on Jalan Raya Pantai Seseh. This is the quietest base on the coast, with few shops or cafés within walking distance. Canggu is a long beach walk or about ten minutes by scooter.","vibe":["Quiet","Rural","Beach","Sunsets"],"best_for":["Retreats","Couples","Slow travel"],"watch_out":["Few shops and cafés within walking distance"],"rent_1br_usd":null,"getting_around":"Canggu is about ten minutes by scooter or a long walk along the beach; there is no public transport.","lat":-8.6479,"lng":115.1158,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/seseh"},{"id":"umalas","name":"Umalas","about":"Residential villa area between Canggu and Seminyak, with rice paddies","description":"Umalas lies inland between Canggu, Seminyak and Batu Belig, in Kerobokan. Jalan Umalas I and II and Jalan Bumbak are its main roads, and Jalan Bumbak Dauh links it to Canggu. Some of the last rice fields in the south still sit between the villas. It is mainly residential and popular with families and long-term expats. Cafés and restaurants such as Nook, overlooking the paddies, Eko Cafe and Warung Italia cluster along the main streets. Beaches are about ten minutes away by scooter, and the airport about 40 minutes by taxi or Gojek on a good day. It is calmer than Canggu's beach strips but has little nightlife.","vibe":["Residential","Rice fields","Family","Quiet"],"best_for":["Families","Long stays","Remote work"],"watch_out":["Not walkable to the beach; about ten minutes by scooter"],"rent_1br_usd":null,"getting_around":"Jalan Bumbak Dauh links Umalas to Canggu; Gojek and taxis run to the airport (about 40 minutes), but most people use scooters.","lat":-8.6531,"lng":115.1515,"url":"https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/umalas"},{"name":"Echo Beach","about":"Surfers only"}],"coworking":["Tribal Coworking Hostel Pererenan","Dojo Bali (pool+cowork)","Outpost Canggu","Betelnut Café (free wifi)"],"experiences":[{"name":"Beginner Surf Lesson","price_usd":[30,50],"duration":"2h","category":"water","url":"https://outgrid.io/destinations/indonesia/canggu/beginner-surf-lesson"},{"name":"Tanah Lot Temple Sunset Tour","price_usd":[20,35],"duration":"3h","category":"culture","url":"https://outgrid.io/destinations/indonesia/canggu/tanah-lot-temple-sunset-tour"},{"name":"ATV Ubud Adventure","price_usd":[35,60],"duration":"3h","category":"adventure","url":"https://outgrid.io/destinations/indonesia/canggu/atv-ubud-adventure"},{"name":"Yoga Class (drop-in)","price_usd":[10,20],"duration":"1.5h","category":"wellness","url":"https://outgrid.io/destinations/indonesia/canggu/yoga-class-drop-in"},{"name":"Cooking Class","price_usd":[30,50],"duration":"4h","category":"food","url":"https://outgrid.io/destinations/indonesia/canggu/cooking-class"},{"name":"Mount Batur Sunrise Hike","price_usd":[45,75],"duration":"full day","category":"nature","url":"https://outgrid.io/destinations/indonesia/canggu/mount-batur-sunrise-hike"}],"url":"https://outgrid.io/destinations/indonesia/canggu"},{"id":"ubud","country_id":"indonesia","name":"Ubud (Bali)","type":"jungle","monthly_cost_usd":1000,"rent_usd":500,"internet_mbps":35,"safety_10":8.5,"vibe":["Yoga","Spiritual","Arts"],"note":"Spiritual heart of Bali. Internet improving. Cooler than coast.","description":null,"lat":-8.51,"lng":115.26,"neighbourhoods":[{"name":"Central Ubud","about":"Markets, restaurants, social"},{"name":"Penestanan","about":"Rice fields, artsy, quiet"},{"name":"Campuhan","about":"Scenic ridge walks"}],"coworking":["Wrkhub by Tutmak (open till 10pm)","Hubud","Kafe Ubud"],"experiences":[{"name":"Tegallalang Rice Terrace Tour","price_usd":[15,30],"duration":"3h","category":"nature","url":"https://outgrid.io/destinations/indonesia/ubud/tegallalang-rice-terrace-tour"},{"name":"Traditional Balinese Cooking Class","price_usd":[30,50],"duration":"4h","category":"food","url":"https://outgrid.io/destinations/indonesia/ubud/traditional-balinese-cooking-class"},{"name":"Tirta Empul Temple Tour","price_usd":[15,25],"duration":"2h","category":"culture","url":"https://outgrid.io/destinations/indonesia/ubud/tirta-empul-temple-tour"},{"name":"Kecak Fire Dance","price_usd":[10,20],"duration":"1.5h","category":"culture","url":"https://outgrid.io/destinations/indonesia/ubud/kecak-fire-dance"},{"name":"White Water Rafting","price_usd":[25,40],"duration":"3h","category":"adventure","url":"https://outgrid.io/destinations/indonesia/ubud/white-water-rafting"},{"name":"Yoga & Meditation Class","price_usd":[10,20],"duration":"1.5h","category":"wellness","url":"https://outgrid.io/destinations/indonesia/ubud/yoga-and-meditation-class"}],"url":"https://outgrid.io/destinations/indonesia/ubud"},{"id":"uluwatu","country_id":"indonesia","name":"Uluwatu (Bali)","type":"beach","monthly_cost_usd":1300,"rent_usd":700,"internet_mbps":35,"safety_10":8,"vibe":["Surf","Cliffside","Wellness"],"note":"Best May–Sep dry season. 45 min drive from Canggu.","description":null,"lat":-8.82,"lng":115.09,"neighbourhoods":[{"name":"Bingin","about":"Budget surf town, $15 rooms available"},{"name":"Padang Padang","about":"Surf beach access"},{"name":"Single Fin area","about":"Views, sundowners"}],"coworking":["The Space (yoga+cowork)","Alchemy (café+coworking tables)","Single Fin by day"],"experiences":[{"name":"Uluwatu Temple + Kecak Dance","price_usd":[10,20],"duration":"2h","category":"culture","url":"https://outgrid.io/destinations/indonesia/uluwatu/uluwatu-temple-kecak-dance"},{"name":"Surf Lesson at Uluwatu","price_usd":[35,60],"duration":"2h","category":"water","url":"https://outgrid.io/destinations/indonesia/uluwatu/surf-lesson-at-uluwatu"},{"name":"Cliff Edge Yoga Session","price_usd":[15,25],"duration":"1.5h","category":"wellness","url":"https://outgrid.io/destinations/indonesia/uluwatu/cliff-edge-yoga-session"},{"name":"Sunset at Sundays Beach Club","price_usd":[20,35],"duration":"3h","category":"lifestyle","url":"https://outgrid.io/destinations/indonesia/uluwatu/sunset-at-sundays-beach-club"},{"name":"Nyang Nyang Beach Hidden Trek","price_usd":[5,10],"duration":"2h","category":"nature","url":"https://outgrid.io/destinations/indonesia/uluwatu/nyang-nyang-beach-hidden-trek"}],"url":"https://outgrid.io/destinations/indonesia/uluwatu"}]
+[
+  {
+    "id": "canggu",
+    "country_id": "indonesia",
+    "name": "Canggu (Bali)",
+    "type": "beach",
+    "monthly_cost_usd": 1200,
+    "rent_usd": 600,
+    "internet_mbps": 40,
+    "safety_10": 8,
+    "vibe": [
+      "Surf",
+      "Nomad Hub",
+      "Cafes"
+    ],
+    "note": "Iconic nomad hub. Dry season May–Sep ideal.",
+    "description": "Canggu is a coastal village in North Kuta, Badung Regency, about 10 km north-west of Kuta on Bali's south-west coast. The name now covers roughly 8 km of black-sand surf beaches from Berawa to Cemagi, where villas, cafés and beach clubs have replaced much of the rice land since about 2010. Numbeo's Bali figures put a cappuccino at about Rp40,000 and a cheap restaurant meal at Rp50,000. Most people get around by scooter or private car, and taxis can be hard to find. Coworkings such as Tropical Nomad, BWork and Tribal charge roughly Rp2.5–3.2 million a month for unlimited access. Indonesia's median fixed broadband is about 51 Mbps (Ookla). Bali runs on WITA (UTC+8), and Indonesia has a remote worker visa (E33G). Daytime highs stay around 29–32°C all year. Rain peaks from December to March (388 mm in January at Denpasar airport); June to September is the dry season, with August averaging 16 mm. Trade-offs: heavy traffic on narrow roads, construction spreading over the rice fields, strained groundwater, beaches that are poor for swimming, and a central one-bedroom around Rp17.5 million a month (Numbeo, Bali).",
+    "lat": -8.65,
+    "lng": 115.13,
+    "neighbourhoods": [
+      {
+        "id": "batu-bolong",
+        "name": "Batu Bolong",
+        "about": "Canggu's busiest strip, running down to a temple beach",
+        "description": "Jalan Batu Bolong runs south-west through central Canggu to Batu Bolong Beach, where the old sea temple Pura Batu Bolong stands by the sand. The street is lined with brunch cafés, restaurants and bars, with Jalan Nelayan and Jalan Munduk Catu branching off it. This is the most walkable part of Canggu and the most popular with digital nomads, with names such as Old Man's, Milk & Madu and Sandbar along the way. Hotel Tugu Bali sits on Jalan Pantai Batu Bolong, and Nelayan Beach, still used by fishing boats in the early morning, is a short walk east. The trade-off is traffic: Batu Bolong is the area's busiest road, scooters and cars crawl at peak times, and the dark-sand beach is better for surfing than for swimming.",
+        "vibe": [
+          "Surf",
+          "Cafés",
+          "Busy",
+          "Nightlife"
+        ],
+        "best_for": [
+          "First-timers",
+          "Remote work",
+          "Surfers"
+        ],
+        "watch_out": [
+          "Heavy scooter and car traffic on Jalan Batu Bolong",
+          "Beach is better for surfing than swimming"
+        ],
+        "rent_1br_usd": 1100,
+        "getting_around": "No rail or bus lines serve Canggu; most people ride scooters or use private cars, and taxis can be hard to find.",
+        "lat": -8.6595,
+        "lng": 115.1301,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/batu-bolong"
+      },
+      {
+        "id": "berawa",
+        "name": "Berawa",
+        "about": "Most built-up stretch, with big beach clubs and spread-out villas",
+        "description": "Berawa lies at the southern end of the Canggu coast, inside Tibubeneng village, just north of Seminyak. Jalan Pantai Berawa runs down to Berawa Beach and carries most of the area's cafés, restaurants, shops and spas. The beach is home to some of Bali's biggest beach clubs, including FINNS Beach Club and Atlas Super Club, with Café del Mar a little further south. Upscale villas and resorts such as Desa Seni and the Legong Keraton Beach Hotel fill the lanes around the main road. Berawa is more spread out than Batu Bolong, so walking between places is less practical. It suits longer stays with a scooter or driver, and serviced apartments here are priced like those in Batu Bolong.",
+        "vibe": [
+          "Beach clubs",
+          "Upscale",
+          "Spread out",
+          "Modern"
+        ],
+        "best_for": [
+          "Long stays",
+          "Couples",
+          "Families"
+        ],
+        "watch_out": [
+          "Spread out; hard to get around without a scooter or driver"
+        ],
+        "rent_1br_usd": 1100,
+        "getting_around": "Jalan Pantai Berawa is the main road to the beach; there is no rail or bus service, so most people ride scooters or use private cars.",
+        "lat": -8.6668,
+        "lng": 115.1394,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/berawa"
+      },
+      {
+        "id": "echo-beach",
+        "name": "Echo Beach (Batu Mejan)",
+        "about": "Westernmost Canggu beach with surf breaks and sunset bars",
+        "description": "Echo Beach, also called Batu Mejan or Mejan Stone Beach, is the westernmost of Canggu's beaches before Pererenan. It sits at the end of Jalan Batu Mejan, near the old Pura Batu Mejan temple, and is known for challenging surf. The beachfront is lined with bars and restaurants that fill up at sunset, including the La Brisa beach club. COMO Uma Canggu and its COMO Beach Club sit just south along the sand, towards Batu Bolong. It is quieter than Batu Bolong but only a short ride away along the coast. The beach has dark grey sand and strong waves, so it suits surfers and people coming for the sunset more than swimmers.",
+        "vibe": [
+          "Surf",
+          "Sunsets",
+          "Laid-back",
+          "Beach bars"
+        ],
+        "best_for": [
+          "Surfers",
+          "Couples",
+          "Short stays"
+        ],
+        "watch_out": [
+          "Strong waves; not a swimming beach"
+        ],
+        "rent_1br_usd": null,
+        "getting_around": "Reached along Jalan Batu Mejan; there is no public transport, so scooters and private cars are the usual way in.",
+        "lat": -8.6548,
+        "lng": 115.1249,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/echo-beach"
+      },
+      {
+        "id": "pererenan",
+        "name": "Pererenan",
+        "about": "Quieter village west of Echo Beach, with villas among the rice fields",
+        "description": "Pererenan is a separate village in Mengwi district, west of Canggu village and east of Munggu, with Pererenan Beach on its southern edge. The beach is known for big surf, and a tall Gajah Mina statue, half elephant and half fish, stands beside it. Jalan Pantai Pererenan has become a strip of upscale restaurants and spas such as Shelter and Mostly, while Jalan Babadan mixes budget guesthouses with new private villas. Sense Canggu Beach, a 4-star resort, is on Jalan Munduk Kedungu. It is calmer than Batu Bolong and still has rice fields between the villas, but it is developing fast. Places are spread out, and you will want a scooter to get around.",
+        "vibe": [
+          "Quiet",
+          "Rice fields",
+          "Villas",
+          "Surf"
+        ],
+        "best_for": [
+          "Long stays",
+          "Couples",
+          "Surfers"
+        ],
+        "watch_out": [
+          "Spread out; a scooter is close to essential"
+        ],
+        "rent_1br_usd": null,
+        "getting_around": "Jalan Pantai Pererenan and Jalan Babadan are the main roads; with no public transport and few taxis, most people ride scooters.",
+        "lat": -8.6417,
+        "lng": 115.1294,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/pererenan"
+      },
+      {
+        "id": "seseh",
+        "name": "Seseh",
+        "about": "Black-sand beach and coconut groves between Canggu and Tanah Lot",
+        "description": "Seseh is a coastal village in Mengwi district, about 15 km north of Seminyak, between Canggu and Tanah Lot. Its wide black-sand beach is backed by coconut groves and rice fields, and the old sea temple Pura Seseh stands near the shore. Neighbouring Cemagi, a few kilometres north-west, shares the same coastline. A plan for a seven-storey resort on Seseh Beach drew protests in 2023 and was redesigned lower-rise; it has since been rebranded as an Anantara. Udara Bali, a yoga and spa retreat, is on Jalan Raya Pantai Seseh. This is the quietest base on the coast, with few shops or cafés within walking distance. Canggu is a long beach walk or about ten minutes by scooter.",
+        "vibe": [
+          "Quiet",
+          "Rural",
+          "Beach",
+          "Sunsets"
+        ],
+        "best_for": [
+          "Retreats",
+          "Couples",
+          "Slow travel"
+        ],
+        "watch_out": [
+          "Few shops and cafés within walking distance"
+        ],
+        "rent_1br_usd": null,
+        "getting_around": "Canggu is about ten minutes by scooter or a long walk along the beach; there is no public transport.",
+        "lat": -8.6479,
+        "lng": 115.1158,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/seseh"
+      },
+      {
+        "id": "umalas",
+        "name": "Umalas",
+        "about": "Residential villa area between Canggu and Seminyak, with rice paddies",
+        "description": "Umalas lies inland between Canggu, Seminyak and Batu Belig, in Kerobokan. Jalan Umalas I and II and Jalan Bumbak are its main roads, and Jalan Bumbak Dauh links it to Canggu. Some of the last rice fields in the south still sit between the villas. It is mainly residential and popular with families and long-term expats. Cafés and restaurants such as Nook, overlooking the paddies, Eko Cafe and Warung Italia cluster along the main streets. Beaches are about ten minutes away by scooter, and the airport about 40 minutes by taxi or Gojek on a good day. It is calmer than Canggu's beach strips but has little nightlife.",
+        "vibe": [
+          "Residential",
+          "Rice fields",
+          "Family",
+          "Quiet"
+        ],
+        "best_for": [
+          "Families",
+          "Long stays",
+          "Remote work"
+        ],
+        "watch_out": [
+          "Not walkable to the beach; about ten minutes by scooter"
+        ],
+        "rent_1br_usd": null,
+        "getting_around": "Jalan Bumbak Dauh links Umalas to Canggu; Gojek and taxis run to the airport (about 40 minutes), but most people use scooters.",
+        "lat": -8.6531,
+        "lng": 115.1515,
+        "url": "https://outgrid.io/destinations/indonesia/canggu/neighbourhoods/umalas"
+      },
+      {
+        "name": "Echo Beach",
+        "about": "Surfers only"
+      }
+    ],
+    "coworking": [
+      "Tribal Coworking Hostel Pererenan",
+      "Dojo Bali (pool+cowork)",
+      "Outpost Canggu",
+      "Betelnut Café (free wifi)"
+    ],
+    "experiences": [
+      {
+        "name": "Beginner Surf Lesson",
+        "price_usd": [
+          30,
+          50
+        ],
+        "duration": "2h",
+        "category": "water",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/beginner-surf-lesson"
+      },
+      {
+        "name": "Tanah Lot Temple Sunset Tour",
+        "price_usd": [
+          20,
+          35
+        ],
+        "duration": "3h",
+        "category": "culture",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/tanah-lot-temple-sunset-tour"
+      },
+      {
+        "name": "ATV Ubud Adventure",
+        "price_usd": [
+          35,
+          60
+        ],
+        "duration": "3h",
+        "category": "adventure",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/atv-ubud-adventure"
+      },
+      {
+        "name": "Yoga Class (drop-in)",
+        "price_usd": [
+          10,
+          20
+        ],
+        "duration": "1.5h",
+        "category": "wellness",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/yoga-class-drop-in"
+      },
+      {
+        "name": "Cooking Class",
+        "price_usd": [
+          30,
+          50
+        ],
+        "duration": "4h",
+        "category": "food",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/cooking-class"
+      },
+      {
+        "name": "Mount Batur Sunrise Hike",
+        "price_usd": [
+          45,
+          75
+        ],
+        "duration": "full day",
+        "category": "nature",
+        "url": "https://outgrid.io/destinations/indonesia/canggu/mount-batur-sunrise-hike"
+      }
+    ],
+    "url": "https://outgrid.io/destinations/indonesia/canggu",
+    "best_season": "Apr–Oct (dry season, best surf). Nov–Mar is wet, with heavy afternoon downpours.",
+    "flight_from_miami": "≈24–28h with 1–2 stops (via Asia hubs) to Denpasar (DPS), then ≈1h by car.",
+    "time_zone": "UTC+8 — 12–13h ahead of US Eastern. US calls mean very late nights.",
+    "sim_cost": "Telkomsel ≈ $10–15/mo (IDR ~150–250k) with 25–60 GB. Coverage good.",
+    "english_level": "Widely spoken — Bali runs on English in nomad areas.",
+    "getting_around": "A scooter is essential; Grab and Gojek for rides and food delivery.",
+    "scene": "Enormous — arguably the biggest surf-and-laptop scene on earth, coworkings everywhere."
+  },
+  {
+    "id": "ubud",
+    "country_id": "indonesia",
+    "name": "Ubud (Bali)",
+    "type": "jungle",
+    "monthly_cost_usd": 1000,
+    "rent_usd": 500,
+    "internet_mbps": 35,
+    "safety_10": 8.5,
+    "vibe": [
+      "Yoga",
+      "Spiritual",
+      "Arts"
+    ],
+    "note": "Spiritual heart of Bali. Internet improving. Cooler than coast.",
+    "description": null,
+    "lat": -8.51,
+    "lng": 115.26,
+    "neighbourhoods": [
+      {
+        "name": "Central Ubud",
+        "about": "Markets, restaurants, social"
+      },
+      {
+        "name": "Penestanan",
+        "about": "Rice fields, artsy, quiet"
+      },
+      {
+        "name": "Campuhan",
+        "about": "Scenic ridge walks"
+      }
+    ],
+    "coworking": [
+      "Wrkhub by Tutmak (open till 10pm)",
+      "Hubud",
+      "Kafe Ubud"
+    ],
+    "experiences": [
+      {
+        "name": "Tegallalang Rice Terrace Tour",
+        "price_usd": [
+          15,
+          30
+        ],
+        "duration": "3h",
+        "category": "nature",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/tegallalang-rice-terrace-tour"
+      },
+      {
+        "name": "Traditional Balinese Cooking Class",
+        "price_usd": [
+          30,
+          50
+        ],
+        "duration": "4h",
+        "category": "food",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/traditional-balinese-cooking-class"
+      },
+      {
+        "name": "Tirta Empul Temple Tour",
+        "price_usd": [
+          15,
+          25
+        ],
+        "duration": "2h",
+        "category": "culture",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/tirta-empul-temple-tour"
+      },
+      {
+        "name": "Kecak Fire Dance",
+        "price_usd": [
+          10,
+          20
+        ],
+        "duration": "1.5h",
+        "category": "culture",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/kecak-fire-dance"
+      },
+      {
+        "name": "White Water Rafting",
+        "price_usd": [
+          25,
+          40
+        ],
+        "duration": "3h",
+        "category": "adventure",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/white-water-rafting"
+      },
+      {
+        "name": "Yoga & Meditation Class",
+        "price_usd": [
+          10,
+          20
+        ],
+        "duration": "1.5h",
+        "category": "wellness",
+        "url": "https://outgrid.io/destinations/indonesia/ubud/yoga-and-meditation-class"
+      }
+    ],
+    "url": "https://outgrid.io/destinations/indonesia/ubud",
+    "best_season": "Apr–Oct (drier). Nov–Mar is lush and wet — beautiful, but expect daily rain.",
+    "flight_from_miami": "≈24–28h with 1–2 stops to Denpasar (DPS), then ≈1.5h by car uphill to Ubud.",
+    "time_zone": "UTC+8 — 12–13h ahead of US Eastern.",
+    "sim_cost": "Telkomsel ≈ $10–15/mo with 25–60 GB; coverage good in town, patchy in the rice fields.",
+    "english_level": "Good — wellness and tourism run in English.",
+    "getting_around": "Scooter or private drivers; the centre is walkable but congested midday.",
+    "scene": "Large and wellness-led — yoga, breathwork and creator circles alongside remote workers."
+  },
+  {
+    "id": "uluwatu",
+    "country_id": "indonesia",
+    "name": "Uluwatu (Bali)",
+    "type": "beach",
+    "monthly_cost_usd": 1300,
+    "rent_usd": 700,
+    "internet_mbps": 35,
+    "safety_10": 8,
+    "vibe": [
+      "Surf",
+      "Cliffside",
+      "Wellness"
+    ],
+    "note": "Best May–Sep dry season. 45 min drive from Canggu.",
+    "description": null,
+    "lat": -8.82,
+    "lng": 115.09,
+    "neighbourhoods": [
+      {
+        "name": "Bingin",
+        "about": "Budget surf town, $15 rooms available"
+      },
+      {
+        "name": "Padang Padang",
+        "about": "Surf beach access"
+      },
+      {
+        "name": "Single Fin area",
+        "about": "Views, sundowners"
+      }
+    ],
+    "coworking": [
+      "The Space (yoga+cowork)",
+      "Alchemy (café+coworking tables)",
+      "Single Fin by day"
+    ],
+    "experiences": [
+      {
+        "name": "Uluwatu Temple + Kecak Dance",
+        "price_usd": [
+          10,
+          20
+        ],
+        "duration": "2h",
+        "category": "culture",
+        "url": "https://outgrid.io/destinations/indonesia/uluwatu/uluwatu-temple-kecak-dance"
+      },
+      {
+        "name": "Surf Lesson at Uluwatu",
+        "price_usd": [
+          35,
+          60
+        ],
+        "duration": "2h",
+        "category": "water",
+        "url": "https://outgrid.io/destinations/indonesia/uluwatu/surf-lesson-at-uluwatu"
+      },
+      {
+        "name": "Cliff Edge Yoga Session",
+        "price_usd": [
+          15,
+          25
+        ],
+        "duration": "1.5h",
+        "category": "wellness",
+        "url": "https://outgrid.io/destinations/indonesia/uluwatu/cliff-edge-yoga-session"
+      },
+      {
+        "name": "Sunset at Sundays Beach Club",
+        "price_usd": [
+          20,
+          35
+        ],
+        "duration": "3h",
+        "category": "lifestyle",
+        "url": "https://outgrid.io/destinations/indonesia/uluwatu/sunset-at-sundays-beach-club"
+      },
+      {
+        "name": "Nyang Nyang Beach Hidden Trek",
+        "price_usd": [
+          5,
+          10
+        ],
+        "duration": "2h",
+        "category": "nature",
+        "url": "https://outgrid.io/destinations/indonesia/uluwatu/nyang-nyang-beach-hidden-trek"
+      }
+    ],
+    "url": "https://outgrid.io/destinations/indonesia/uluwatu",
+    "best_season": "Apr–Oct (dry, offshore winds, prime surf swells). Nov–Mar is wet with onshore winds.",
+    "flight_from_miami": "≈24–28h with 1–2 stops to Denpasar (DPS), then ≈45 min by car to the Bukit.",
+    "time_zone": "UTC+8 — 12–13h ahead of US Eastern.",
+    "sim_cost": "Telkomsel ≈ $10–15/mo; coverage decent around the main breaks and cafés.",
+    "english_level": "Good around surf spots and cafés.",
+    "getting_around": "A scooter is essential — the Bukit is spread out along cliff roads.",
+    "scene": "Small to medium and surf-first — a growing cluster of cowork cafés and villas."
+  }
+]
