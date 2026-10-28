@@ -176,7 +176,10 @@ const server = createServer(async (req, res) => {
       }
       res.writeHead(200, { "content-type": "application/json" });
       return res.end(JSON.stringify({
-        meta: { model: probeModel, ...meta, models_visible: metaModels },
+        meta: { model: probeModel, ...meta, models_visible: metaModels,
+          // Public docs say real Meta Model API keys start with "LLM_".
+          // A yes/no on the documented format marker only — not key material.
+          key_format_llm_prefix: config.metaApiKey.startsWith("LLM_") },
         baseten: { model: config.verifierModel, ...baseten },
       }, null, 2));
     }
