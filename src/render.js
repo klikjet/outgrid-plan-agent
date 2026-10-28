@@ -1,9 +1,11 @@
-// HTML rendering — the demo front-end recreates outgrid.io's browsing
-// experience (homepage sentence-search, destination cards, destination
-// and country pages) from the exported sample data only. No live APIs,
-// no production code — original pages written for this hackathon repo,
-// styled on Outgrid's palette (dark slate #263646, cream #F4F0E8).
+// HTML rendering — the demo front-end recreates outgrid.io's experience
+// with the browse mechanics from Outgrid's own design debates: a
+// cinematic billboard, horizontal rails, hover-expand cards, a detail
+// modal, My List and Continue Planning — in Outgrid's identity (dark
+// slate #263646, cream #F4F0E8, gold accent), NOT a Netflix costume.
+// Data comes only from the exported snapshot in data/. No live APIs.
 import { loadData, getCity, getCountry } from "./records.js";
+import { applyBrowse } from "./search.js";
 
 export function esc(s) {
   return String(s ?? "")
@@ -14,43 +16,99 @@ export function esc(s) {
 }
 
 const CSS = `
-  :root { --ink:#263646; --cream:#F4F0E8; --line:#536373; --gold:#B7791F; --card:#fffdf8; }
+  :root { --ink:#263646; --ink2:#1b2835; --cream:#F4F0E8; --line:#536373; --gold:#B7791F; --card:#fffdf8; }
   * { box-sizing:border-box; }
   body { font-family: Georgia, 'Times New Roman', serif; margin:0; background:var(--cream); color:var(--ink); }
-  header.top { background:var(--ink); color:var(--cream); padding:16px 20px; display:flex; justify-content:space-between; align-items:center; }
-  header.top .brand { font-size:20px; font-weight:bold; letter-spacing:.02em; }
-  header.top nav a { color:var(--cream); margin-left:16px; font-size:14px; text-decoration:none; opacity:.9; }
-  .hero { padding:38px 20px 8px; text-align:center; }
-  .hero h1 { font-size:34px; margin:0 0 10px; }
-  .hero p.sub { color:var(--line); margin:0 auto 18px; max-width:620px; line-height:1.5; }
-  .sentence { background:var(--card); border:1px solid #ddd5c3; border-radius:14px; padding:18px; max-width:760px; margin:0 auto; font-size:17px; line-height:2.1; }
-  .sentence input, .sentence select { font:inherit; font-size:16px; border:0; border-bottom:2px solid var(--gold); background:transparent; padding:2px 4px; color:var(--ink); }
-  .sentence input[type=text] { width:170px; } .sentence input[type=number] { width:100px; }
-  main { max-width:980px; margin:0 auto; padding:22px 16px 60px; }
+  header.top { background:var(--ink); color:var(--cream); padding:14px 4%; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:50; }
+  header.top .brand { font-size:21px; font-weight:bold; letter-spacing:.02em; }
+  header.top .brand span { color:var(--gold); }
+  header.top nav a { color:var(--cream); margin-left:16px; font-size:14px; text-decoration:none; opacity:.92; }
+  main { max-width:1180px; margin:0 auto; padding:22px 16px 60px; }
   h2 { font-size:23px; margin:26px 0 12px; }
-  .filters { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 16px; }
-  .filters a { border:1px solid #c9c0aa; background:var(--card); color:var(--ink); border-radius:999px; padding:5px 13px; font-size:13px; text-decoration:none; }
-  .filters a.on { background:var(--ink); color:var(--cream); }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:14px; }
-  .card { background:var(--card); border:1px solid #ddd5c3; border-radius:12px; padding:16px; display:flex; flex-direction:column; }
-  .card h3 { margin:0 0 2px; font-size:19px; }
-  .card h3 a { color:var(--ink); text-decoration:none; }
-  .card .sub { color:var(--line); font-size:13px; margin-bottom:8px; }
-  .card p { font-size:14px; line-height:1.45; margin:5px 0; }
+  a { color:var(--ink); }
+  .note { font-size:13px; color:var(--line); line-height:1.5; }
+  footer { color:var(--line); font-size:12px; text-align:center; padding:18px; }
+  /* Billboard */
+  .billboard { position:relative; min-height:64vh; display:flex; align-items:flex-end; color:var(--cream); background:linear-gradient(100deg,#0d4f5c 0%,#14606e 34%,#263646 78%); overflow:hidden; }
+  .billboard::before { content:""; position:absolute; inset:0; background:
+    repeating-linear-gradient(90deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px),
+    repeating-linear-gradient(0deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px); }
+  .billboard::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(27,40,53,.92) 4%, transparent 55%); }
+  .billboard .bb-in { position:relative; z-index:2; padding:0 4% 42px; max-width:760px; }
+  .billboard .kicker { text-transform:uppercase; letter-spacing:.22em; font-size:12px; color:#e8cf9a; margin-bottom:10px; }
+  .billboard h1 { font-size:52px; line-height:1.04; margin:0 0 12px; }
+  .billboard p.lede { font-size:17px; line-height:1.55; color:#e9e4d8; margin:0 0 16px; max-width:600px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 18px; }
+  .mchip { border:1px solid rgba(244,240,232,.45); border-radius:999px; padding:4px 12px; font-size:13px; color:var(--cream); background:rgba(27,40,53,.35); }
+  .mchip b { color:#e8cf9a; }
+  .bb-cta { display:flex; gap:10px; flex-wrap:wrap; }
+  .btn { display:inline-block; background:var(--cream); color:var(--ink); border:0; border-radius:8px; padding:11px 20px; font-size:15px; font-family:inherit; text-decoration:none; cursor:pointer; font-weight:bold; }
+  .btn.dark { background:var(--ink); color:var(--cream); }
+  .btn.ghost { background:rgba(244,240,232,.14); color:var(--cream); border:1px solid rgba(244,240,232,.5); font-weight:normal; }
+  .btn.small { padding:7px 12px; font-size:13px; }
+  /* AI search + sentence search */
+  .searchdeck { max-width:1180px; margin:-34px auto 0; padding:0 16px; position:relative; z-index:5; }
+  .searchcard { background:var(--card); border:1px solid #ddd5c3; border-radius:14px; padding:18px; box-shadow:0 14px 34px rgba(38,54,70,.18); }
+  .searchcard h3 { margin:0 0 4px; font-size:18px; }
+  .aisearch { display:flex; gap:8px; margin-top:10px; }
+  .aisearch input { flex:1; font:inherit; font-size:16px; padding:11px 13px; border:1px solid #c9c0aa; border-radius:8px; }
+  .sentence { margin-top:14px; font-size:15px; color:var(--line); line-height:2; }
+  .sentence input, .sentence select { font:inherit; font-size:15px; border:0; border-bottom:2px solid var(--gold); background:transparent; padding:2px 4px; color:var(--ink); }
+  .sentence input[type=number] { width:96px; }
+  /* Chips filter row */
+  .filters { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 6px; align-items:center; }
+  .filters a, .filters .chipbtn { border:1px solid #c9c0aa; background:var(--card); color:var(--ink); border-radius:999px; padding:5px 13px; font-size:13px; text-decoration:none; font-family:inherit; cursor:pointer; }
+  .filters a.on, .filters .chipbtn.on { background:var(--ink); color:var(--cream); }
+  .filters select { font:inherit; font-size:13px; padding:5px 8px; border:1px solid #c9c0aa; border-radius:999px; background:var(--card); }
+  /* Rails */
+  .rail { margin-top:30px; }
+  .rail h2 { display:flex; align-items:baseline; gap:12px; margin:0 0 6px; padding:0 2px; }
+  .rail h2 .explore { font-size:13px; color:var(--gold); opacity:0; transition:opacity .2s; font-weight:normal; }
+  .rail:hover h2 .explore { opacity:1; }
+  .rail .track { display:flex; gap:12px; overflow-x:auto; padding:14px 2px 18px; scroll-snap-type:x mandatory; scrollbar-width:thin; }
+  /* Cards */
+  .tcard { flex:0 0 248px; scroll-snap-align:start; background:var(--card); border:1px solid #ddd5c3; border-radius:12px; overflow:hidden; position:relative; transition:transform .22s ease, box-shadow .22s ease; }
+  .tcard:hover { transform:scale(1.06); z-index:20; box-shadow:0 16px 38px rgba(38,54,70,.35); }
+  .tcard .art { height:118px; position:relative; display:flex; align-items:flex-end; padding:10px 12px; color:var(--cream); overflow:hidden; }
+  .tcard .art::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px), repeating-linear-gradient(0deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px); }
+  .tcard .art .initial { position:absolute; right:6px; top:-14px; font-size:104px; font-weight:bold; color:rgba(244,240,232,.16); line-height:1; }
+  .tcard .art .flag { position:relative; font-size:22px; }
+  .tcard .art .badge { position:relative; margin-left:auto; background:var(--ink); color:var(--cream); border-radius:6px; padding:3px 9px; font-size:12px; }
+  .tcard .art .badge b { color:#e8cf9a; font-size:14px; }
+  .tcard .tbody { padding:12px 13px 13px; }
+  .tcard h3 { margin:0 0 2px; font-size:18px; }
+  .tcard h3 a { text-decoration:none; }
+  .tcard .sub { color:var(--line); font-size:12.5px; margin-bottom:7px; }
+  .tcard p { font-size:13.5px; line-height:1.45; margin:4px 0; }
+  .tag { display:inline-block; background:var(--cream); border:1px solid #ddd5c3; border-radius:999px; padding:2px 9px; font-size:11.5px; margin:2px 3px 2px 0; }
+  .tcard .hover-panel { position:absolute; inset:auto 0 0 0; background:linear-gradient(transparent, rgba(27,40,53,.94) 45%); padding:30px 10px 10px; display:flex; gap:6px; opacity:0; transition:opacity .2s; }
+  .tcard:hover .hover-panel { opacity:1; }
+  .icon-btn { flex:1; text-align:center; background:rgba(244,240,232,.14); color:var(--cream); border:1px solid rgba(244,240,232,.55); border-radius:7px; padding:7px 4px; font-size:12.5px; text-decoration:none; cursor:pointer; font-family:inherit; }
+  .icon-btn:hover { background:var(--cream); color:var(--ink); }
+  .icon-btn.inlist { background:var(--gold); border-color:var(--gold); color:#fff; }
+  /* Grid */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(248px,1fr)); gap:14px; }
+  .grid .tcard { flex:none; }
+  .grid .tcard:hover { transform:scale(1.03); }
+  /* Detail pages */
   .stats { display:flex; gap:14px; flex-wrap:wrap; background:#eef2f5; border-radius:10px; padding:12px 14px; margin:12px 0; }
   .stats div { font-size:13px; color:var(--line); } .stats b { display:block; font-size:17px; color:var(--ink); }
-  .tag { display:inline-block; background:var(--cream); border:1px solid #ddd5c3; border-radius:999px; padding:2px 9px; font-size:12px; margin:2px 3px 2px 0; }
-  .score { display:inline-block; background:var(--ink); color:var(--cream); border-radius:6px; padding:2px 8px; font-size:13px; }
-  a.btn, button.btn { display:inline-block; margin-top:auto; background:var(--ink); color:var(--cream); border:0; border-radius:8px; padding:9px 16px; font-size:14px; text-decoration:none; cursor:pointer; text-align:center; }
-  a.btn.ghost { background:transparent; color:var(--ink); border:1px solid var(--ink); }
-  .card .row { display:flex; gap:8px; margin-top:10px; } .card .row a.btn { flex:1; }
-  ul.clean { list-style:none; padding:0; margin:8px 0; } ul.clean li { padding:7px 0; border-top:1px dashed #ddd5c3; font-size:15px; line-height:1.5; }
-  ul.clean li:first-child { border-top:0; }
-  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media (max-width:640px){ .cols{grid-template-columns:1fr;} }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media (max-width:640px){ .cols{grid-template-columns:1fr;} .billboard h1{font-size:38px;} }
   .panel { background:var(--card); border:1px solid #ddd5c3; border-radius:12px; padding:16px 18px; }
   .panel h3 { margin-top:0; }
-  #tripbar { position:sticky; bottom:0; background:var(--ink); color:var(--cream); padding:12px 18px; font-size:14px; display:none; }
-  #tripbar.show { display:block; }
+  ul.clean { list-style:none; padding:0; margin:8px 0; } ul.clean li { padding:7px 0; border-top:1px dashed #ddd5c3; font-size:15px; line-height:1.5; }
+  ul.clean li:first-child { border-top:0; }
+  .score { display:inline-block; background:var(--ink); color:var(--cream); border-radius:6px; padding:2px 8px; font-size:13px; }
+  .flag { display:inline-block; background:#fdf0d5; color:#7a5210; border:1px solid #e6cf8f; border-radius:4px; padding:1px 7px; font-size:12px; margin-left:6px; }
+  .fchip { display:inline-block; background:#eef2f5; border:1px solid #c8d2da; border-radius:999px; padding:3px 11px; font-size:13px; margin:2px 4px 2px 0; }
+  /* Modal */
+  .modal-veil { position:fixed; inset:0; background:rgba(27,40,53,.72); z-index:300; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:4vh 0; }
+  .modal-veil.open { display:flex; }
+  .modal { width:min(760px,94vw); background:var(--card); border-radius:12px; overflow:hidden; position:relative; box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .modal .mhero { min-height:210px; color:var(--cream); display:flex; align-items:flex-end; padding:18px 22px; position:relative; }
+  .modal .mbody { padding:18px 22px 22px; }
+  .modal .mclose { position:absolute; top:12px; right:12px; z-index:3; background:rgba(27,40,53,.55); color:var(--cream); border:1px solid rgba(244,240,232,.5); border-radius:50%; width:34px; height:34px; font-size:16px; cursor:pointer; }
+  /* Intake + plan */
   form.intake { background:var(--card); border:1px solid #ddd5c3; border-radius:12px; padding:18px; display:grid; gap:10px; max-width:560px; }
   form.intake label { font-size:13px; color:var(--line); display:grid; gap:4px; }
   form.intake input, form.intake select { font:inherit; font-size:15px; padding:8px; border:1px solid #c9c0aa; border-radius:6px; }
@@ -60,19 +118,24 @@ const CSS = `
   .item h4 { margin:0 0 3px; font-size:15px; } .item p { margin:0; font-size:14px; line-height:1.5; }
   .meta { font-size:12px; color:var(--line); margin-top:4px; }
   .chip { display:inline-block; background:#eef2f5; border-radius:4px; padding:1px 6px; font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
-  .flag { display:inline-block; background:#fdf0d5; color:#7a5210; border:1px solid #e6cf8f; border-radius:4px; padding:1px 7px; font-size:12px; margin-left:6px; }
+  .pflag { display:inline-block; background:#fdf0d5; color:#7a5210; border:1px solid #e6cf8f; border-radius:4px; padding:1px 7px; font-size:12px; margin-left:6px; }
   .summary { background:#eef2f5; border:1px solid #c8d2da; border-radius:12px; padding:14px 18px; font-size:14px; line-height:1.55; }
   .honest { font-style:italic; }
-  .note { font-size:13px; color:var(--line); line-height:1.5; }
-  footer { color:var(--line); font-size:12px; text-align:center; padding:18px; }
 `;
+
+const REGION_ART = {
+  Americas: "linear-gradient(120deg,#0d4f5c,#1d7285 55%,#263646)",
+  Asia: "linear-gradient(120deg,#8a5a2b,#b7791f 55%,#263646)",
+  Europe: "linear-gradient(120deg,#3d5a80,#5b7ea6 55%,#263646)",
+};
+const FALLBACK_ART = "linear-gradient(120deg,#40586e,#263646)";
 
 function page(title, body, extra = "") {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} · Outgrid</title><style>${CSS}</style></head>
 <body>
-<header class="top"><div class="brand">Outgrid</div><nav><a href="/">Destinations</a><a href="/#countries">Countries</a><a href="/plan">Plan a stay</a></nav></header>
+<header class="top"><div class="brand">Out<span>grid</span></div><nav><a href="/">Destinations</a><a href="/#countries">Countries</a><a href="/plan">Plan a stay</a></nav></header>
 ${body}
 <footer>Outgrid Plan Agent — a hackathon demo recreating outgrid.io from an exported data snapshot. Demo only: no live data, no bookings. Built for the Meta Global AI Developer Hackathon, Oct 27 – Nov 4, 2026.</footer>
 ${extra}
@@ -83,72 +146,241 @@ function money(n) {
   return n == null ? "—" : `$${Number(n).toLocaleString("en-US")}`;
 }
 
-function cityCard(c, countryName) {
-  return `<div class="card">
-    <h3><a href="/destination/${esc(c.id)}">${esc(c.name)}</a></h3>
-    <div class="sub">${esc(c.type ?? "")} in ${esc(countryName)} · safety ${esc(c.safety_10)}/10</div>
-    <p>Monthly budget <strong>${money(c.monthly_cost_usd)}</strong> · Internet <strong>${esc(c.internet_mbps)} Mbps</strong>${c.rent_usd != null ? ` · Rent ${money(c.rent_usd)}` : ""}</p>
-    <p>${(c.vibe ?? []).slice(0, 4).map((v) => `<span class="tag">${esc(v)}</span>`).join("")}</p>
-    <div class="row">
-      <a class="btn" href="/destination/${esc(c.id)}">Explore</a>
-      <a class="btn ghost" href="/plan?destination=${esc(c.id)}">Plan a stay</a>
+function cityCard(c, country) {
+  const art = REGION_ART[country?.region] ?? FALLBACK_ART;
+  return `<article class="tcard" data-city="${esc(c.id)}">
+    <div class="art" style="background:${art}">
+      <span class="initial">${esc(c.name.slice(0, 1))}</span>
+      <span class="flag">${esc(country?.flag ?? "")}</span>
+      <span class="badge">Safety <b>${esc(c.safety_10)}/10</b></span>
     </div>
-  </div>`;
+    <div class="tbody">
+      <h3><a href="/destination/${esc(c.id)}">${esc(c.name)}</a></h3>
+      <div class="sub">${esc(c.type ?? "")} in ${esc(country?.name ?? c.country_id)}</div>
+      <p><strong>${money(c.monthly_cost_usd)}</strong>/month · <strong>${esc(c.internet_mbps)} Mbps</strong>${c.rent_usd != null ? ` · Rent ${money(c.rent_usd)}` : ""}</p>
+      <p>${(c.vibe ?? []).slice(0, 3).map((v) => `<span class="tag">${esc(v)}</span>`).join("")}</p>
+    </div>
+    <div class="hover-panel">
+      <a class="icon-btn" href="/destination/${esc(c.id)}">Explore</a>
+      <button class="icon-btn" type="button" data-modal="${esc(c.id)}">Details</button>
+      <a class="icon-btn" href="/plan?destination=${esc(c.id)}">Plan</a>
+      <button class="icon-btn" type="button" data-list="${esc(c.id)}">+ List</button>
+    </div>
+  </article>`;
 }
 
-export function renderBrowse({ q = "", maxBudget = "", band = "" } = {}) {
+function countryCard(c) {
+  const art = REGION_ART[c.region] ?? FALLBACK_ART;
+  return `<article class="tcard" data-country="${esc(c.id)}">
+    <div class="art" style="background:${art}">
+      <span class="initial">${esc(c.name.slice(0, 1))}</span>
+      <span class="flag">${esc(c.flag ?? "")}</span>
+      <span class="badge">Nomad Score <b>${esc(c.nomad_score)}</b></span>
+    </div>
+    <div class="tbody">
+      <h3><a href="/country/${esc(c.id)}">${esc(c.name)}</a></h3>
+      <div class="sub">${esc(c.region)} · Safety ${esc(c.safety_10)}/10</div>
+      <p><strong>${money(c.monthly_cost_usd)}</strong>/month · <strong>${esc(c.internet_mbps)} Mbps</strong></p>
+      <p>${esc(c.best_for ?? "")}</p>
+    </div>
+    <div class="hover-panel">
+      <a class="icon-btn" href="/country/${esc(c.id)}">Explore ${esc(c.name)}</a>
+      <button class="icon-btn" type="button" data-modal-country="${esc(c.id)}">Details</button>
+    </div>
+  </article>`;
+}
+
+function rail(title, cards, exploreHref = "") {
+  if (!cards) return "";
+  return `<section class="rail"><h2>${esc(title)} ${exploreHref ? `<a class="explore" href="${esc(exploreHref)}">Explore all →</a>` : ""}</h2><div class="track">${cards}</div></section>`;
+}
+
+function clientData() {
   const { cities, countries } = loadData();
-  const countryName = Object.fromEntries(countries.map((c) => [c.id, c.name]));
-  let shown = cities.slice();
-  if (q) {
-    const needle = q.toLowerCase();
-    shown = shown.filter(
-      (c) => c.name.toLowerCase().includes(needle) || (countryName[c.country_id] ?? "").toLowerCase().includes(needle)
-    );
+  const slim = (o, keys) => Object.fromEntries(keys.map((k) => [k, o[k]]));
+  return {
+    cities: Object.fromEntries(cities.map((c) => [c.id, {
+      ...slim(c, ["id", "name", "type", "monthly_cost_usd", "rent_usd", "internet_mbps", "safety_10", "vibe", "note"]),
+      country_id: c.country_id,
+      neighbourhoods: (c.neighbourhoods ?? []).length,
+      experiences: (c.experiences ?? []).length,
+    }])),
+    countries: Object.fromEntries(countries.map((c) => [c.id, {
+      ...slim(c, ["id", "name", "region", "flag", "nomad_score", "monthly_cost_usd", "internet_mbps", "safety_10", "best_for", "visa_duration"]),
+    }])),
+  };
+}
+
+const CLIENT_JS = `
+const DATA = window.__OG_DATA__;
+const $ = (s, r = document) => r.querySelector(s);
+function inList(id) { try { return (JSON.parse(localStorage.getItem("og-my-list") || "[]")).includes(id); } catch { return false; } }
+function toggleList(id, btn) {
+  let list = []; try { list = JSON.parse(localStorage.getItem("og-my-list") || "[]"); } catch {}
+  list = list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
+  localStorage.setItem("og-my-list", JSON.stringify(list));
+  document.querySelectorAll('[data-list="' + id + '"]').forEach((b) => { b.classList.toggle("inlist", list.includes(id)); b.textContent = list.includes(id) ? "✓ Listed" : "+ List"; });
+  renderMyList();
+}
+function cardHTML(c) {
+  const co = DATA.countries[c.country_id] || {};
+  return '<article class="tcard"><div class="tbody"><h3><a href="/destination/' + c.id + '">' + c.name + '</a></h3>' +
+    '<div class="sub">' + (c.type || "") + ' in ' + (co.name || "") + ' · safety ' + c.safety_10 + '/10</div>' +
+    '<p><strong>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</strong>/month · <strong>' + c.internet_mbps + ' Mbps</strong></p></div>' +
+    '<div class="hover-panel"><a class="icon-btn" href="/destination/' + c.id + '">Explore</a><a class="icon-btn" href="/plan?destination=' + c.id + '">Plan</a>' +
+    '<button class="icon-btn inlist" type="button" data-list="' + c.id + '">✓ Listed</button></div></article>';
+}
+function renderMyList() {
+  const host = document.getElementById("mylist-rail"); if (!host) return;
+  let list = []; try { list = JSON.parse(localStorage.getItem("og-my-list") || "[]"); } catch {}
+  const cards = list.map((id) => DATA.cities[id]).filter(Boolean).map(cardHTML).join("");
+  host.innerHTML = cards ? '<section class="rail"><h2>My List</h2><div class="track">' + cards + "</div></section>" : "";
+  bindCards(host);
+}
+function renderContinue() {
+  const host = document.getElementById("continue-rail"); if (!host) return;
+  const id = localStorage.getItem("og-last-plan");
+  const c = id && DATA.cities[id];
+  host.innerHTML = c ? '<section class="rail"><h2>Continue planning</h2><div class="track">' + cardHTML(c) + "</div></section>" : "";
+  bindCards(host);
+}
+function openModal(kind, id) {
+  const veil = document.getElementById("modal-veil"); const box = document.getElementById("modal-box");
+  if (!veil || !box) return;
+  if (kind === "city") {
+    const c = DATA.cities[id]; if (!c) return; const co = DATA.countries[c.country_id] || {};
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(120deg,#40586e,#263646)"><button class="mclose" type="button" data-close>✕</button>' +
+      '<div><div style="font-size:30px;font-weight:bold;">' + c.name + '</div><div>' + (c.type || "") + ' in ' + (co.name || "") + '</div></div></div>' +
+      '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
+      '<div>Rent<b>' + (c.rent_usd != null ? "$" + Number(c.rent_usd).toLocaleString("en-US") : "Not in the data") + '</b></div>' +
+      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div></div>' +
+      '<p style="line-height:1.6;">' + (c.note || "") + '</p>' +
+      '<p class="note">' + c.neighbourhoods + ' neighbourhoods · ' + c.experiences + ' experiences on the full page.</p>' +
+      '<p><a class="btn dark" href="/plan?destination=' + c.id + '">Plan a stay in ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div>';
+  } else {
+    const c = DATA.countries[id]; if (!c) return;
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(120deg,#40586e,#263646)"><button class="mclose" type="button" data-close>✕</button>' +
+      '<div><div style="font-size:30px;font-weight:bold;">' + (c.flag || "") + ' ' + c.name + '</div><div>' + c.region + ' · Nomad Score ' + c.nomad_score + '</div></div></div>' +
+      '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
+      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
+      '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div></div>' +
+      '<p style="line-height:1.6;">' + (c.best_for || "") + '</p>' +
+      '<p><a class="btn dark" href="/country/' + c.id + '">Explore ' + c.name + '</a></p></div>';
   }
-  if (maxBudget) shown = shown.filter((c) => c.monthly_cost_usd <= Number(maxBudget));
+  veil.classList.add("open");
+}
+function bindCards(root) {
+  root.querySelectorAll("[data-list]").forEach((b) => {
+    const id = b.getAttribute("data-list");
+    if (inList(id)) { b.classList.add("inlist"); b.textContent = "✓ Listed"; }
+    b.onclick = () => toggleList(id, b);
+  });
+  root.querySelectorAll("[data-modal]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-modal")); });
+  root.querySelectorAll("[data-modal-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-modal-country")); });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  bindCards(document);
+  renderMyList(); renderContinue();
+  const veil = document.getElementById("modal-veil");
+  if (veil) {
+    veil.addEventListener("click", (e) => { if (e.target === veil || e.target.hasAttribute("data-close")) veil.classList.remove("open"); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") veil.classList.remove("open"); });
+  }
+});
+`;
+
+function modalShell() {
+  return `<div class="modal-veil" id="modal-veil"><div class="modal" id="modal-box"></div></div>
+<script>window.__OG_DATA__ = ${JSON.stringify(clientData())};</script>
+<script>${CLIENT_JS}</script>`;
+}
+
+export function renderBrowse(params = {}) {
+  const { cities: allCities, countries } = loadData();
+  const { cities, countries: shownCountries, countryById } = applyBrowse(params);
+  const byCountry = (c) => countryById[c.country_id];
+  const hero = getCity("bacalar");
+  const heroCountry = getCountry(hero.country_id);
+  const beach = allCities.filter((c) => c.type === "beach" || c.type === "island");
+  const budget = allCities.filter((c) => c.monthly_cost_usd <= 1300);
+  const fast = allCities.slice().sort((a, b) => b.internet_mbps - a.internet_mbps).slice(0, 8);
+  const byScore = countries.slice().sort((a, b) => b.nomad_score - a.nomad_score);
   const bands = [["", "All scores"], ["85", "85+"], ["70", "70–84"], ["55", "55–69"], ["0", "Under 55"]];
-  const countryCards = countries
-    .map((c) => {
-      const inBand =
-        !band || band === "" ? true
-        : band === "85" ? c.nomad_score >= 85
-        : band === "70" ? c.nomad_score >= 70 && c.nomad_score < 85
-        : band === "55" ? c.nomad_score >= 55 && c.nomad_score < 70
-        : c.nomad_score < 55;
-      if (!inBand) return "";
-      return `<div class="card">
-        <h3><a href="/country/${esc(c.id)}">${esc(c.flag ?? "")} ${esc(c.name)}</a></h3>
-        <div class="sub">${esc(c.region)} · <span class="score">Nomad Score ${esc(c.nomad_score)}</span></div>
-        <p>Monthly budget <strong>${money(c.monthly_cost_usd)}</strong> · Internet <strong>${esc(c.internet_mbps)} Mbps</strong> · Safety <strong>${esc(c.safety_10)}/10</strong></p>
-        <p>${esc(c.best_for ?? "")}</p>
-        <div class="row"><a class="btn" href="/country/${esc(c.id)}">Explore ${esc(c.name)}</a></div>
-      </div>`;
-    })
-    .join("");
+  const types = ["", ...new Set(allCities.map((c) => c.type).filter(Boolean))];
+  const sort = params.sort || "recommended";
+  const hasFilter = params.q || params.maxBudget || params.band || params.type || sort !== "recommended";
   const body = `
-  <div class="hero">
-    <h1>Find Your Perfect Next Base</h1>
-    <p class="sub">Destination rankings and trip planning for digital nomads — every plan checked claim-by-claim against the data before it reaches you.</p>
-    <form class="sentence" method="get" action="/">
-      I'd like to be in
-      <input type="text" name="q" placeholder="Where do you want to go?" value="${esc(q)}">
-      with a budget of
-      <input type="number" name="budget" placeholder="2500" value="${esc(maxBudget)}" min="0"> /month
-      <br><button class="btn" type="submit">Search destinations</button>
+  <section class="billboard">
+    <div class="bb-in">
+      <div class="kicker">Featured base · ${esc(heroCountry.name)}</div>
+      <h1>${esc(hero.name)} — the lagoon base</h1>
+      <p class="lede">Find your perfect next base. Every destination below is scored on the stuff that decides a long stay — cost, internet, safety — and every plan is checked claim-by-claim by a second AI before you see it.</p>
+      <div class="chips">
+        <span class="mchip">Monthly budget <b>${money(hero.monthly_cost_usd)}</b></span>
+        <span class="mchip">Internet <b>${esc(hero.internet_mbps)} Mbps</b></span>
+        <span class="mchip">Safety <b>${esc(hero.safety_10)}/10</b></span>
+        <span class="mchip">${esc(heroCountry.name)} Nomad Score <b>${esc(heroCountry.nomad_score)}</b></span>
+      </div>
+      <div class="bb-cta">
+        <a class="btn" href="/plan?destination=${esc(hero.id)}">Plan a stay in ${esc(hero.name)}</a>
+        <a class="btn ghost" href="/destination/${esc(hero.id)}">Explore ${esc(hero.name)}</a>
+      </div>
+    </div>
+  </section>
+  <div class="searchdeck"><div class="searchcard">
+    <h3>Search in your own words</h3>
+    <p class="note">Powered by Muse Spark: describe the base you want and the model turns it into filters — the data does the matching, and the results page shows you exactly what it heard.</p>
+    <form class="aisearch" method="get" action="/search">
+      <input type="text" name="nl" placeholder="Quiet beach town under $1,200 a month with decent wifi for calls…">
+      <button class="btn dark" type="submit">Search with AI</button>
     </form>
-  </div>
+    <form class="sentence" method="get" action="/">
+      Or the classic way — I'd like to be in
+      <input type="text" name="q" placeholder="Where to?" value="${esc(params.q || "")}">
+      with a budget of <input type="number" name="budget" placeholder="2500" value="${esc(params.maxBudget || "")}" min="0"> /month
+      <button class="btn dark small" type="submit">Search</button>
+    </form>
+  </div></div>
   <main>
-    <h2 id="countries">Countries</h2>
-    <div class="filters">Nomad score: ${bands.map(([v, label]) => `<a href="/?band=${v}" class="${band === v ? "on" : ""}">${label}</a>`).join("")}</div>
-    <div class="grid">${countryCards || '<p class="note">No countries in that score band in the demo data.</p>'}</div>
-    <h2>Cities — showing ${shown.length} of ${cities.length} destinations</h2>
-    ${(q || maxBudget) ? `<p class="note">Filtered by ${q ? `“${esc(q)}”` : ""} ${maxBudget ? `budget up to ${money(Number(maxBudget))}/month` : ""} · <a href="/">clear</a></p>` : ""}
-    <div class="grid">${shown.map((c) => cityCard(c, countryName[c.country_id] ?? c.country_id)).join("") || '<p class="note">No cities match — try a higher budget.</p>'}</div>
+    <div id="mylist-rail"></div>
+    <div id="continue-rail"></div>
+    ${rail("Countries, ranked by Nomad Score", byScore.map(countryCard).join(""), "/#countries")}
+    ${rail("Beach & island bases", beach.map((c) => cityCard(c, byCountry(c))).join(""))}
+    ${rail("Under $1,300 a month", budget.map((c) => cityCard(c, byCountry(c))).join(""))}
+    ${rail("Fastest internet", fast.map((c) => cityCard(c, byCountry(c))).join(""))}
+    <h2 id="countries" style="margin-top:44px;">Browse everything</h2>
+    <div class="filters">
+      ${bands.map(([v, label]) => `<a href="/?band=${v}" class="${(params.band || "") === v ? "on" : ""}">Score ${label}</a>`).join("")}
+      <span class="note">·</span>
+      ${types.map((t) => `<a href="/?type=${esc(t)}" class="${(params.type || "") === t ? "on" : ""}">${t === "" ? "All types" : esc(t)}</a>`).join("")}
+      <form method="get" action="/" style="display:inline;">
+        <select name="sort" onchange="this.form.submit()">
+          ${[["recommended", "Sort: Recommended"], ["cost_low", "Sort: Lowest cost"], ["safety", "Sort: Safest"], ["internet", "Sort: Fastest internet"], ["score", "Sort: Nomad Score"]].map(([v, l]) => `<option value="${v}" ${sort === v ? "selected" : ""}>${l}</option>`).join("")}
+        </select>
+      </form>
+      ${hasFilter ? `<a href="/">Clear filters</a>` : ""}
+    </div>
+    ${hasFilter ? `<p class="note">Showing ${cities.length} cities and ${shownCountries.length} countries matching your filters.</p>` : ""}
+    <h3 style="margin:18px 0 10px;">Countries</h3>
+    <div class="grid">${shownCountries.map(countryCard).join("") || '<p class="note">No countries in that score band in the demo data.</p>'}</div>
+    <h3 style="margin:26px 0 10px;">Cities</h3>
+    <div class="grid">${cities.map((c) => cityCard(c, byCountry(c))).join("") || '<p class="note">No cities match — try a higher budget.</p>'}</div>
     <h2>Plan your route</h2>
-    <p class="note">On the live site you tap pins on a map and tune stays and budget as your route comes together. In this demo, pick a city above and hit “Plan a stay” — the planner builds the day-by-day plan and the checker verifies every claim in it.</p>
+    <p class="note">On the live site you tap pins on a map and tune stays and budget as your route comes together. In this demo, pick a city and hit “Plan” — the planner builds the day-by-day plan and the checker verifies every claim in it.</p>
   </main>`;
-  return page("Find Your Perfect Next Base", body);
+  return page("Find Your Perfect Next Base", body, modalShell());
+}
+
+export function renderSearchResults({ query, chips, cities, countryById, aiUsed, note, relaxed = [] }) {
+  const cards = cities.map((c) => cityCard(c, countryById[c.country_id])).join("");
+  const body = `<main>
+    <p class="note"><a href="/">← All destinations</a></p>
+    <h2 style="font-size:28px;">Results for “${esc(query)}”</h2>
+    ${aiUsed ? `<p class="note">Muse Spark read that as:</p><p>${chips.map((ch) => `<span class="fchip">${esc(ch)}</span>`).join("") || '<span class="fchip">No specific filters — showing everything, best matches first</span>'}</p>${relaxed.length ? `<p class="note">Nothing in the data matched all of that at once, so I loosened ${esc(relaxed.join(" and "))} — your stated budget was never loosened.</p>` : ""}` : `<p class="note">${esc(note || "")}</p>`}
+    <p class="note">${cities.length} destination${cities.length === 1 ? "" : "s"} in the data match. The model only translates your words into filters — every result here is a real record, nothing invented.</p>
+    <div class="grid">${cards || '<p class="note">Nothing matches all of that — try loosening the budget or the internet speed.</p>'}</div>
+  </main>`;
+  return page("Search results", body, modalShell());
 }
 
 export function renderDestination(cityId) {
@@ -156,6 +388,7 @@ export function renderDestination(cityId) {
   const country = getCountry(city.country_id);
   const { cities } = loadData();
   const siblings = cities.filter((c) => c.country_id === country.id && c.id !== city.id);
+  const art = REGION_ART[country.region] ?? FALLBACK_ART;
   const experiences = (city.experiences ?? [])
     .map(
       (e) => `<li><strong>${esc(e.name)}</strong>: ${
@@ -167,10 +400,16 @@ export function renderDestination(cityId) {
     .map((n) => `<li><strong>${esc(n.name)}</strong>: ${esc(n.about)}</li>`)
     .join("");
   const coworking = (city.coworking ?? []).map((c) => `<li>${esc(c)}</li>`).join("");
-  const body = `<main>
-    <p class="note"><a href="/">← All destinations</a> · Part of <a href="/country/${esc(country.id)}">${esc(country.name)}</a></p>
-    <h2 style="font-size:30px;margin-bottom:4px;">${esc(city.name)}, ${esc(country.name)}</h2>
-    <p class="note" style="font-size:15px;">${esc(city.type ?? "")} in ${esc(country.name)} · ${(city.vibe ?? []).join(", ")}</p>
+  const body = `
+  <section class="billboard" style="min-height:44vh;background:${art}">
+    <div class="bb-in">
+      <div class="kicker">${esc(city.type ?? "")} in ${esc(country.name)}</div>
+      <h1>${esc(city.name)}</h1>
+      <div class="chips">${(city.vibe ?? []).map((v) => `<span class="mchip">${esc(v)}</span>`).join("")}</div>
+      <div class="bb-cta"><a class="btn" href="/plan?destination=${esc(city.id)}">Plan a stay</a><a class="btn ghost" href="/country/${esc(country.id)}">More in ${esc(country.name)}</a></div>
+    </div>
+  </section>
+  <main>
     <div class="stats">
       <div>Monthly budget<b>${money(city.monthly_cost_usd)}</b></div>
       <div>Rent<b>${city.rent_usd != null ? money(city.rent_usd) : "Not in the data"}</b></div>
@@ -184,24 +423,23 @@ export function renderDestination(cityId) {
     <div class="panel" style="margin-top:22px;">
       <h3>Staying in ${esc(country.name)}</h3>
       <p style="line-height:1.55;">${esc(country.visa ?? "")}${country.visa_duration ? ` Duration on the record: ${esc(country.visa_duration)}.` : ""}</p>
-      <p class="note">Visa and stay information is shown from Outgrid's records and flagged <span class="flag">unverified</span> until confirmed with official sources — the Plan Agent treats it the same way.</p>
-      <a class="btn" href="/plan?destination=${esc(city.id)}">Plan a stay in ${esc(city.name)}</a>
+      <p class="note">Visa and stay information is shown from Outgrid's records and flagged <span class="pflag">unverified</span> until confirmed with official sources — the Plan Agent treats it the same way.</p>
+      <a class="btn dark" href="/plan?destination=${esc(city.id)}">Plan a stay in ${esc(city.name)}</a>
     </div>
-    ${siblings.length ? `<h2>More cities in ${esc(country.name)}</h2><p>${siblings.map((s) => `<a href="/destination/${esc(s.id)}">${esc(s.name)}</a>`).join(" · ")}</p>` : ""}
+    ${siblings.length ? `<h2>More cities in ${esc(country.name)}</h2><div class="grid">${siblings.map((s) => cityCard(s, country)).join("")}</div>` : ""}
   </main>`;
-  return page(`${city.name}, ${country.name}: living & working remotely`, body);
+  return page(`${city.name}, ${country.name}: living & working remotely`, body, modalShell());
 }
 
 export function renderCountry(countryId) {
   const country = getCountry(countryId);
   const { cities } = loadData();
   const own = cities.filter((c) => c.country_id === country.id);
-  const countryName = country.name;
   const pros = (country.pros ?? []).map((p) => `<li>${esc(p)}</li>`).join("");
   const cons = (country.cons ?? []).map((p) => `<li>${esc(p)}</li>`).join("");
   const body = `<main>
     <p class="note"><a href="/">← All destinations</a></p>
-    <h2 style="font-size:30px;margin-bottom:4px;">${esc(country.flag ?? "")} ${esc(country.name)}</h2>
+    <h2 style="font-size:32px;margin-bottom:4px;">${esc(country.flag ?? "")} ${esc(country.name)}</h2>
     <p class="note" style="font-size:15px;">${esc(country.region)} · ${esc(country.best_for ?? "")}</p>
     <div class="stats">
       <div>Nomad Score<b>${esc(country.nomad_score)}</b></div>
@@ -214,7 +452,7 @@ export function renderCountry(countryId) {
       <div class="panel"><h3>Staying there</h3>
         <p style="line-height:1.55;">${esc(country.visa ?? "")}</p>
         <p class="note">Duration: ${esc(country.visa_duration ?? "—")}${country.visa_cost_usd != null ? ` · Visa cost on record: ${money(country.visa_cost_usd)}` : ""}${country.visa_income_requirement_usd_month != null ? ` · Income requirement on record: ${money(country.visa_income_requirement_usd_month)}/month` : ""}</p>
-        <p class="note">Shown from Outgrid's records — flagged <span class="flag">unverified</span>, confirm with official sources.</p>
+        <p class="note">Shown from Outgrid's records — flagged <span class="pflag">unverified</span>, confirm with official sources.</p>
       </div>
       <div class="panel"><h3>Tax snapshot</h3>
         <p style="line-height:1.55;">${esc(country.tax_notes ?? "")}</p>
@@ -226,9 +464,9 @@ export function renderCountry(countryId) {
       ${cons ? `<div class="panel"><h3>Cons</h3><ul class="clean">${cons}</ul></div>` : ""}
     </div>` : ""}
     <h2>Cities in ${esc(country.name)}</h2>
-    <div class="grid">${own.map((c) => cityCard(c, countryName)).join("")}</div>
+    <div class="grid">${own.map((c) => cityCard(c, country)).join("")}</div>
   </main>`;
-  return page(country.name, body);
+  return page(country.name, body, modalShell());
 }
 
 export function renderIntake(destinationId) {
@@ -251,7 +489,7 @@ export function renderIntake(destinationId) {
       <label>Interests (comma separated) <input name="interests" value="lagoon, cenotes"></label>
       <label>Coworking needs <input name="coworking_needs" value="Daily focused work, reliable WiFi"></label>
       <label>Fitness needs <input name="fitness_needs" value="Morning runs"></label>
-      <button class="btn" type="submit">Build my plan</button>
+      <button class="btn dark" type="submit">Build my plan</button>
     </form>
   </main>`;
   return page("Plan your stay", body);
@@ -266,7 +504,7 @@ export function renderPlan(plan, city) {
       (d) => `<section class="day"><h3>${esc(d.date)}</h3>${d.items
         .map(
           (i) => `<div class="item">
-            <h4>${esc(i.title)}${i.unverifiable ? `<span class="flag">unverified</span>` : ""}</h4>
+            <h4>${esc(i.title)}${i.unverifiable ? `<span class="pflag">unverified</span>` : ""}</h4>
             <p>${esc(i.detail)}</p>
             <div class="meta"><span class="chip">${esc(i.claim_type)}</span>
             ${i.source_refs.length ? ` Source: ${i.source_refs.map(esc).join(", ")}` : " No factual claim — no source needed."}</div>
@@ -293,5 +531,6 @@ export function renderPlan(plan, city) {
     ${days}
     <p><a href="/">← Browse all destinations</a></p>
   </main>`;
-  return page(`Your ${city.name} plan`, body);
+  const extra = `<script>try { localStorage.setItem("og-last-plan", ${JSON.stringify(city.id)}); } catch (e) {}</script>`;
+  return page(`Your ${city.name} plan`, body, extra);
 }

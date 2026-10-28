@@ -33,10 +33,20 @@ human-reviewed; otherwise it is omitted or flagged unverifiable. The model
 never invents hotels, prices, transit times, or stay rules.
 
 **The demo site:** the browsable front-end in this repo recreates
-outgrid.io's experience — the "Find Your Perfect Next Base" homepage
-search, country pages with Nomad Scores, destination pages with
-neighbourhoods, coworking and experiences, and the plan pages — rebuilt
-from the exported data snapshot in `data/`. It is original code written
+outgrid.io's experience — a cinematic billboard, horizontal rails,
+hover-expand cards, a detail modal, My List and Continue Planning, in
+Outgrid's own slate-and-cream identity — plus the homepage sentence
+search, Nomad Score bands, type filters and sorting, country and
+destination pages, and the plan pages, all rebuilt from the exported
+data snapshot in `data/`.
+
+**Search in your own words:** the homepage also takes a plain-language
+request ("quiet beach town under $1,200 with fast wifi"). Muse Spark
+translates it into the classic filters as strict JSON; the records do
+the matching, and the results page shows the interpreted filters as
+chips — if nothing matches everything, inferred thresholds are loosened
+one at a time and the page says exactly what was loosened. The model
+never picks destinations and never invents results. It is original code written
 for this hackathon: no production code, and no live APIs — the demo runs
 entirely on the snapshot, so what you browse is exactly what the Planner
 is allowed to use.
@@ -59,8 +69,10 @@ unsupported. Full evidence in `eval/`.
 - [x] Intake form + Planner (Muse Spark) → structured itinerary JSON
 - [x] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
 - [x] Publish rule — verifier-gated; held plans never publish
-- [x] Browsable front-end recreating outgrid.io (home, country +
-  destination pages) on the sample snapshot — no live APIs
+- [x] Browsable front-end recreating outgrid.io (billboard, rails,
+  hover cards, detail modal, My List) on the sample snapshot
+- [x] Classic filters + natural-language search (Muse Spark interprets,
+  the records match)
 - [ ] Shareable trip page with per-item source citations
 - [ ] Verifier proof test + hero-destination eval (`/eval`) — proof test passed Oct 28, see `eval/`
 

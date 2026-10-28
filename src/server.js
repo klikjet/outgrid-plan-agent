@@ -13,9 +13,15 @@ import { getCity, getCountry } from "./records.js";
 import { loadConfig, liveModelsReady } from "./config.js";
 import { runPipeline } from "./pipeline.js";
 import { callModelJson } from "./model-client.js";
-import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, esc } from "./render.js";
+import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, renderSearchResults, esc } from "./render.js";
+import { interpretQuery, applyInterpreted, describeFilters, keywordFallback } from "./search.js";
 
 const PORT = process.env.PORT || 3000;
+
+function redirect(res, location) {
+  res.writeHead(302, { location });
+  res.end();
+}
 
 function send(res, html) {
   res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
@@ -30,6 +36,33 @@ const server = createServer(async (req, res) => {
         q: url.searchParams.get("q") || "",
         maxBudget: url.searchParams.get("budget") || "",
         band: url.searchParams.get("band") || "",
+        type: url.searchParams.get("type") || "",
+        sort: url.searchParams.get("sort") || "recommended",
+      }));
+    }
+    if (url.pathname === "/search") {
+      const nl = (url.searchParams.get("nl") || "").trim();
+      if (!nl) return redirect(res, "/");
+      const config = loadConfig();
+      if (liveModelsReady(config)) {
+        try {
+          // Muse Spark translates the words into filters; the records
+          // do the matching. The page shows what the model heard.
+          const filters = await interpretQuery(callModelJson, config, nl);
+          const { cities, countryById, relaxed } = applyInterpreted(filters);
+          return send(res, renderSearchResults({ query: nl, chips: describeFilters(filters), cities, countryById, aiUsed: true, relaxed }));
+        } catch {
+          const { cities, countryById } = keywordFallback(nl);
+          return send(res, renderSearchResults({
+            query: nl, chips: [], cities, countryById, aiUsed: false,
+            note: "The AI search could not be reached just now, so this is a plain keyword match instead.",
+          }));
+        }
+      }
+      const { cities, countryById } = keywordFallback(nl);
+      return send(res, renderSearchResults({
+        query: nl, chips: [], cities, countryById, aiUsed: false,
+        note: "AI search runs when this server has its Meta Model API key — for now this is a plain keyword match.",
       }));
     }
     if (url.pathname.startsWith("/destination/")) {
