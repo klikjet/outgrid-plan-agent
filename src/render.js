@@ -234,7 +234,7 @@ function clientData() {
   const slim = (o, keys) => Object.fromEntries(keys.map((k) => [k, o[k]]));
   return {
     cities: Object.fromEntries(cities.map((c) => [c.id, {
-      ...slim(c, ["id", "name", "type", "monthly_cost_usd", "rent_usd", "internet_mbps", "safety_10", "vibe", "note", "description"]),
+      ...slim(c, ["id", "name", "type", "monthly_cost_usd", "rent_usd", "internet_mbps", "safety_10", "vibe", "note", "description", "best_season", "flight_from_miami", "time_zone", "sim_cost", "english_level", "getting_around", "scene"]),
       country_id: c.country_id,
       neighbourhoods: c.neighbourhoods ?? [],
       coworking: c.coworking ?? [],
@@ -317,6 +317,10 @@ function openModal(kind, id) {
       '<div>' + (co.name || "Country") + ' Nomad Score<b>' + (co.nomad_score ?? "—") + '</b></div>' +
       '<div>Stay on record<b>' + (co.visa_duration || "—") + '</b></div></div>' +
       '<div class="stats" style="margin-top:0;">' + decide.join("") + '</div>' +
+      (c.best_season ? '<div class="msec"><h4>Nomad essentials</h4><div class="hoods">' +
+        [["Best season", c.best_season], ["From Miami", c.flight_from_miami], ["Time zone", c.time_zone], ["SIM and data", c.sim_cost], ["English", c.english_level], ["Getting around", c.getting_around], ["The scene", c.scene]]
+          .filter((pair) => pair[1]).map((pair) => '<div class="hood"><b>' + pair[0] + '</b>' + pair[1] + '</div>').join("") +
+        '</div><p class="note">Essentials added to the snapshot in October 2026 as curated typical ranges — verify locally.</p></div>' : '') +
       (c.description ? '<div class="msec"><h4>The full picture, from the record</h4><p style="line-height:1.65;margin:0;">' + c.description + '</p></div>' : '<p style="line-height:1.6;">' + (c.note || "") + '</p>') +
       (c.neighbourhoods && c.neighbourhoods.length ? '<div class="msec"><h4>Neighbourhoods</h4><div class="hoods">' + c.neighbourhoods.map((h) => '<div class="hood"><b>' + h.name + '</b>' + (h.about || "") + '</div>').join("") + '</div></div>' : '') +
       (c.coworking && c.coworking.length ? '<div class="msec"><h4>Working from here</h4><ul class="tick">' + c.coworking.map((w) => '<li>' + w + '</li>').join("") + '</ul></div>' : '') +
@@ -535,6 +539,15 @@ export function renderDestination(cityId) {
       <div>Safety<b>${esc(city.safety_10)}/10</b></div>
     </div>
     ${city.note ? `<p style="line-height:1.6;">${esc(city.note)}</p>` : ""}
+    ${city.best_season ? `<h2>Nomad essentials</h2><ul class="clean">
+      <li><strong>Best season</strong>: ${esc(city.best_season)}</li>
+      <li><strong>From Miami</strong>: ${esc(city.flight_from_miami)}</li>
+      <li><strong>Time zone</strong>: ${esc(city.time_zone)}</li>
+      <li><strong>SIM and data</strong>: ${esc(city.sim_cost)}</li>
+      <li><strong>English</strong>: ${esc(city.english_level)}</li>
+      <li><strong>Getting around</strong>: ${esc(city.getting_around)}</li>
+      <li><strong>The scene</strong>: ${esc(city.scene)}</li></ul>
+    <p class="note">Essentials added to the snapshot in October 2026 as curated typical ranges — verify locally.</p>` : ""}
     ${neighbourhoods ? `<h2>Best neighbourhoods to stay and visit</h2><ul class="clean">${neighbourhoods}</ul>` : ""}
     ${coworking ? `<h2>Coworking</h2><ul class="clean">${coworking}</ul>` : ""}
     ${experiences ? `<h2>Experiences and activities</h2><ul class="clean">${experiences}</ul>` : ""}

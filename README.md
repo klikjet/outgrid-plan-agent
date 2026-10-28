@@ -71,7 +71,16 @@ unsupported. Full evidence in `eval/`.
 - [x] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
 - [x] Publish rule — verifier-gated; held plans never publish
 - [x] Browsable front-end recreating outgrid.io (billboard, rails,
-  hover cards, detail modal, My List) on the sample snapshot
+  hover cards, My List) on the sample snapshot — cards open an in-place
+  pop-up deep dive with the full record (briefing, neighbourhoods,
+  coworking, priced experiences, country pros/cons, visa and tax notes),
+  computed decision aids (rent share, money left for living, internet
+  and safety reads), city/country pop-up chaining and parallax heroes
+- [x] Nomad-essentials fields added to all 16 city records (best season,
+  flight time from Miami, time zone vs US Eastern, SIM/data cost,
+  English level, getting around, scene) — curated typical ranges added
+  to the snapshot Oct 28, labelled as such in the UI; like every record
+  field they are citable by the Planner and checkable by the Verifier
 - [x] Classic filters + natural-language search (Muse Spark interprets,
   the records match)
 - [x] Muse Image artwork for every destination card (21 images,
