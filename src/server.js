@@ -50,8 +50,16 @@ const server = createServer(async (req, res) => {
         return res.end("Not found");
       }
       try {
-        const buf = await readFile(new URL(`../public/img/${name}`, import.meta.url));
-        res.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" });
+        const raw = await readFile(new URL(`../public/img/${name}`, import.meta.url));
+        // The artwork files are stored in the repo as base64 text (the
+        // GitHub push path used for this repo is text-only, so the JPEG
+        // bytes were committed encoded). Decode to the real image bytes
+        // before serving; pass through anything that is already binary.
+        const head = raw.subarray(0, 4).toString("ascii");
+        const buf = head.startsWith("/9j/")
+          ? Buffer.from(raw.toString("ascii").trim(), "base64")
+          : raw;
+        res.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=86400", "content-length": buf.length });
         return res.end(buf);
       } catch {
         res.writeHead(404, { "content-type": "text/plain" });
