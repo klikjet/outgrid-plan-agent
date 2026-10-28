@@ -111,6 +111,36 @@ const server = createServer(async (req, res) => {
       const plan = buildStubPlan(intake);
       return send(res, renderPlan(plan, city));
     }
+    if (url.pathname === "/health/models") {
+      // Diagnostic: ping each model provider with the server-side keys
+      // and report per-provider status. Returns status and error text
+      // only — never key material (length is reported to spot a
+      // truncated or padded paste).
+      const config = loadConfig();
+      const ping = async (baseUrl, apiKey, model) => {
+        if (!apiKey) return { ok: false, error: "no key configured", key_length: 0 };
+        try {
+          await callModelJson({
+            baseUrl, apiKey, model,
+            system: "You answer with JSON only.",
+            user: 'Reply with exactly {"ok": true}',
+            timeoutMs: 30000,
+          });
+          return { ok: true, key_length: apiKey.length };
+        } catch (err) {
+          return { ok: false, error: `${err.name}: ${err.message}`.slice(0, 300), key_length: apiKey.length };
+        }
+      };
+      const [meta, baseten] = await Promise.all([
+        ping(config.metaBaseUrl, config.metaApiKey, config.plannerModel),
+        ping(config.basetenBaseUrl, config.basetenApiKey, config.verifierModel),
+      ]);
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({
+        meta: { model: config.plannerModel, ...meta },
+        baseten: { model: config.verifierModel, ...baseten },
+      }, null, 2));
+    }
     res.writeHead(404, { "content-type": "text/plain" });
     res.end("Not found");
   } catch (err) {

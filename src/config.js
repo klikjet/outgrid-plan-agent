@@ -3,9 +3,12 @@
 // Copy .env.example to .env on the server and fill in real values.
 
 export function loadConfig(env = process.env) {
+  // Keys are pasted into dashboards by hand — strip stray whitespace and
+  // line breaks so an invisible paste artifact can't break auth.
+  const clean = (v) => (v || "").trim();
   return {
-    metaApiKey: env.META_MODEL_API_KEY || "",
-    basetenApiKey: env.BASETEN_API_KEY || "",
+    metaApiKey: clean(env.META_MODEL_API_KEY),
+    basetenApiKey: clean(env.BASETEN_API_KEY),
     metaBaseUrl: env.META_BASE_URL || "https://api.meta.ai/v1",
     basetenBaseUrl: env.BASETEN_BASE_URL || "https://inference.baseten.co/v1",
     plannerModel: env.PLANNER_MODEL || "muse-spark-1.3",
