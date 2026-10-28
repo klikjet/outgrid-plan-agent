@@ -269,7 +269,7 @@ function openModal(kind, id) {
   if (!veil || !box) return;
   if (kind === "city") {
     const c = DATA.cities[id]; if (!c) return; const co = DATA.countries[c.country_id] || {};
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(\'/img/' + c.id + '.jpg\') center/cover"><button class="mclose" type="button" data-close>✕</button>' +
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(/img/' + c.id + '.jpg) center/cover"><button class="mclose" type="button" data-close>✕</button>' +
       '<div><div style="font-size:30px;font-weight:bold;">' + c.name + '</div><div>' + (c.type || "") + ' in ' + (co.name || "") + '</div></div></div>' +
       '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
       '<div>Rent<b>' + (c.rent_usd != null ? "$" + Number(c.rent_usd).toLocaleString("en-US") : "Not in the data") + '</b></div>' +
@@ -281,14 +281,14 @@ function openModal(kind, id) {
       '<p><a class="btn dark" href="/plan?destination=' + c.id + '">Plan a stay in ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div>';
   } else {
     const c = DATA.countries[id]; if (!c) return;
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(\'/img/country-' + c.id + '.jpg\') center/cover"><button class="mclose" type="button" data-close>✕</button>' +
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(/img/country-' + c.id + '.jpg) center/cover"><button class="mclose" type="button" data-close>✕</button>' +
       '<div><div style="font-size:30px;font-weight:bold;">' + (c.flag || "") + ' ' + c.name + '</div><div>' + c.region + ' · Nomad Score ' + c.nomad_score + '</div></div></div>' +
       '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
       '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
       '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div>' +
       '<div>US travel advisory<b>' + (c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—") + '</b></div></div>' +
       '<p style="line-height:1.6;">' + (c.best_for || "") + '</p>' +
-      (c.visa ? '<p style="line-height:1.6;">' + String(c.visa).slice(0, 300) + '</p><p class="note">Stay information from Outgrid\'s records — flagged unverified, confirm with official sources.</p>' : '') +
+      (c.visa ? '<p style="line-height:1.6;">' + String(c.visa).slice(0, 300) + '</p><p class="note">Stay information from the Outgrid records — flagged unverified, confirm with official sources.</p>' : '') +
       '<p><a class="btn dark" href="/country/' + c.id + '">Explore ' + c.name + '</a></p></div>';
   }
   veil.classList.add("open");
