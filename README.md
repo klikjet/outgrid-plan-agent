@@ -22,8 +22,11 @@ destination data:
    and returns a per-claim verdict: `supported`, `unsupported`, or
    `unverifiable`. Unsupported claims go back to the Planner once, with the
    flags attached. Nothing passes silently.
-3. **Founder review gate** — a human reviews (approve / edit / reject) before a
-   plan publishes as a shareable trip page with source citations.
+3. **Verifier-gated publish** — a plan publishes automatically once
+   verification completes with zero `unsupported` claims. Still-flagged items
+   are dropped and logged; `unverifiable` items publish flagged. No human in
+   the loop — the second model is the gate. The verified plan becomes a
+   shareable trip page with source citations.
 
 Visa and safety content is only used when the underlying record field is
 human-reviewed; otherwise it is omitted or flagged unverifiable. The model
@@ -40,15 +43,15 @@ never invents hotels, prices, transit times, or stay rules.
 
 - [ ] Intake form + Planner (Muse Spark) → structured itinerary JSON
 - [ ] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
-- [ ] Founder review queue (approve / edit / reject)
+- [ ] Publish rule — verifier-gated; held plans never publish
 - [ ] Shareable trip page with per-item source citations
 - [ ] Verifier proof test + hero-destination eval (`/eval`)
 
 ## Pre-existing Outgrid (not part of the judged build)
 
 The Outgrid platform and its reviewed dataset of 137 destinations predate the
-hackathon. This repository contains only a small exported snapshot of the hero
-destination records, so the demo runs standalone. It does **not** contain the
+hackathon. This repository contains only the exported snapshot of the
+5-country / 16-city sample pack, so the demo runs standalone. It does **not** contain the
 production Outgrid codebase.
 
 ## Running it
