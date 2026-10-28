@@ -141,14 +141,26 @@ const server = createServer(async (req, res) => {
       if (liveModelsReady(config)) {
         // Real path: Planner (Muse Spark) → Verifier (Muse Spark Open)
         // → publish rule. A held plan renders with its held notice.
-        const plan = await runPipeline({
-          callModel: callModelJson,
-          config,
-          intake,
-          city,
-          country: getCountry(city.country_id),
-        });
-        return send(res, renderPlan(plan, city));
+        try {
+          const plan = await runPipeline({
+            callModel: callModelJson,
+            config,
+            intake,
+            city,
+            country: getCountry(city.country_id),
+          });
+          return send(res, renderPlan(plan, city));
+        } catch (err) {
+          // The live models could not be reached (e.g. the provider
+          // cannot see the model from this network). Never show a raw
+          // error, and never dress an unchecked plan up as checked:
+          // serve the deterministic record-based plan, clearly
+          // labelled as an unchecked preview.
+          console.error("Live plan failed, serving labelled preview:", err.message);
+          const plan = buildStubPlan(intake);
+          plan.preview_unchecked = true;
+          return send(res, renderPlan(plan, city));
+        }
       }
       const plan = buildStubPlan(intake);
       return send(res, renderPlan(plan, city));

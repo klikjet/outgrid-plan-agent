@@ -648,12 +648,14 @@ export function renderPlan(plan, city) {
     ? `<div class="summary">
       <p class="honest">Planned with AI on Fabrice's travel data, checked claim-by-claim by a second model against the source records.</p>
       <p><strong>Checker summary:</strong> ${plan.verifier_summary.checked} claims checked · ${plan.verifier_summary.supported} supported · ${plan.verifier_summary.unverifiable} unverifiable (shown with a warning) · ${plan.verifier_summary.dropped ?? 0} dropped as unsupported.
+      ${plan.preview_unchecked ? `<br><strong>Preview plan — the live AI models could not be reached just now, so this plan was assembled directly from the destination record and has NOT been claim-checked.</strong>` : ""}
       ${plan.state === "held" ? `<br><strong>This plan is HELD (${esc(plan.held_reason ?? "")}) and is not published as a finished plan.</strong>` : ""}</p>
       ${plan.dropped?.length ? `<p>Dropped after checking: ${plan.dropped.map((d) => esc(d.title)).join("; ")}</p>` : ""}
     </div>`
     : `<div class="summary">
       <p class="honest">Planned with AI on Fabrice's travel data, checked claim-by-claim by a second model against the source records.</p>
       <p><strong>Preview mode:</strong> rendered from the stand-in planner — the live models run when the server has its API keys. Claims on this plan: ${allItems.length} · with a source: ${sourced} · flagged unverified: ${flagged}.</p>
+      ${plan.preview_unchecked ? `<p><strong>Preview plan — the live AI models could not be reached just now, so this plan was assembled directly from the destination record and has NOT been claim-checked.</strong></p>` : ""}
     </div>`;
   const body = `<main>
     <p class="note"><a href="/destination/${esc(city.id)}">← ${esc(city.name)}</a></p>
