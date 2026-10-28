@@ -34,7 +34,7 @@ const CSS = `
     repeating-linear-gradient(90deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px); }
   .billboard::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(27,40,53,.92) 4%, transparent 55%); z-index:1; }
-  .billboard .bb-bg { position:absolute; inset:0; background-size:cover; background-position:center; z-index:0; }
+  .billboard .bb-bg { position:absolute; inset:-42px 0; background-size:cover; background-position:center; z-index:0; will-change:transform; }
   .billboard .bb-in { position:relative; z-index:2; padding:0 4% 42px; max-width:760px; }
   .billboard .kicker { text-transform:uppercase; letter-spacing:.22em; font-size:12px; color:#e8cf9a; margin-bottom:10px; }
   .billboard h1 { font-size:52px; line-height:1.04; margin:0 0 12px; }
@@ -118,7 +118,22 @@ const CSS = `
   .modal-veil { position:fixed; inset:0; background:rgba(27,40,53,.72); z-index:300; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:4vh 0; }
   .modal-veil.open { display:flex; }
   .modal { width:min(760px,94vw); background:var(--card); border-radius:12px; overflow:hidden; position:relative; box-shadow:0 30px 80px rgba(0,0,0,.5); }
-  .modal .mhero { min-height:210px; color:var(--cream); display:flex; align-items:flex-end; padding:18px 22px; position:relative; }
+  .modal .mhero { min-height:230px; color:var(--cream); display:flex; align-items:flex-end; padding:18px 22px; position:relative; overflow:hidden; }
+  .modal .mhero .phimg { position:absolute; left:0; right:0; top:-46px; bottom:-46px; background-size:cover; background-position:center; z-index:0; will-change:transform; }
+  .modal .mhero .mscrim { position:absolute; inset:0; background:linear-gradient(rgba(27,40,53,.14),rgba(27,40,53,.86)); z-index:1; }
+  .modal .mhero .mtitle { position:relative; z-index:2; }
+  @keyframes pop { from { transform:translateY(16px) scale(.98); opacity:0; } to { transform:none; opacity:1; } }
+  .modal-veil.open .modal { animation:pop .24s ease; }
+  .msec { margin-top:18px; }
+  .msec h4 { margin:0 0 8px; font-size:16px; }
+  .hoods { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+  .hood { background:#eef2f5; border:1px solid #dbe3e9; border-radius:10px; padding:10px 12px; font-size:14px; line-height:1.45; }
+  .hood b { display:block; margin-bottom:3px; }
+  .xrow { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px dashed #ddd5c3; font-size:14.5px; }
+  .xrow small { color:var(--line); white-space:nowrap; }
+  ul.tick { margin:6px 0; padding-left:18px; line-height:1.55; font-size:14.5px; }
+  .citychips { display:flex; flex-wrap:wrap; gap:8px; }
+  .tcard .art { cursor:pointer; }
   .modal .mbody { padding:18px 22px 22px; }
   .modal .mclose { position:absolute; top:12px; right:12px; z-index:3; background:rgba(27,40,53,.55); color:var(--cream); border:1px solid rgba(244,240,232,.5); border-radius:50%; width:34px; height:34px; font-size:16px; cursor:pointer; }
   /* Intake + plan */
@@ -162,7 +177,7 @@ function money(n) {
 function cityCard(c, country) {
   const art = REGION_ART[country?.region] ?? FALLBACK_ART;
   return `<article class="tcard" data-city="${esc(c.id)}">
-    <div class="art" style="background:${art}">
+    <div class="art" style="background:${art}" data-modal="${esc(c.id)}" title="Quick view">
       <img class="ph" src="/img/${esc(c.id)}.jpg" alt="${esc(c.name)}" loading="lazy" onerror="this.remove()">
       <span class="scrim"></span>
       <span class="initial">${esc(c.name.slice(0, 1))}</span>
@@ -188,7 +203,7 @@ function cityCard(c, country) {
 function countryCard(c) {
   const art = REGION_ART[c.region] ?? FALLBACK_ART;
   return `<article class="tcard" data-country="${esc(c.id)}">
-    <div class="art" style="background:${art}">
+    <div class="art" style="background:${art}" data-modal-country="${esc(c.id)}" title="Quick view">
       <img class="ph" src="/img/country-${esc(c.id)}.jpg" alt="${esc(c.name)}" loading="lazy" onerror="this.remove()">
       <span class="scrim"></span>
       <span class="initial">${esc(c.name.slice(0, 1))}</span>
@@ -219,13 +234,14 @@ function clientData() {
   const slim = (o, keys) => Object.fromEntries(keys.map((k) => [k, o[k]]));
   return {
     cities: Object.fromEntries(cities.map((c) => [c.id, {
-      ...slim(c, ["id", "name", "type", "monthly_cost_usd", "rent_usd", "internet_mbps", "safety_10", "vibe", "note"]),
+      ...slim(c, ["id", "name", "type", "monthly_cost_usd", "rent_usd", "internet_mbps", "safety_10", "vibe", "note", "description"]),
       country_id: c.country_id,
-      neighbourhoods: (c.neighbourhoods ?? []).length,
-      experiences: (c.experiences ?? []).length,
+      neighbourhoods: c.neighbourhoods ?? [],
+      coworking: c.coworking ?? [],
+      experiences: (c.experiences ?? []).map((e) => ({ name: e.name, price_usd: e.price_usd, duration: e.duration, category: e.category })),
     }])),
     countries: Object.fromEntries(countries.map((c) => [c.id, {
-      ...slim(c, ["id", "name", "region", "flag", "nomad_score", "monthly_cost_usd", "internet_mbps", "safety_10", "best_for", "visa_duration", "visa", "us_travel_advisory_level"]),
+      ...slim(c, ["id", "name", "region", "flag", "nomad_score", "monthly_cost_usd", "internet_mbps", "safety_10", "best_for", "visa_duration", "visa", "us_travel_advisory_level", "capital", "visa_cost_usd", "visa_income_requirement_usd_month", "tax_notes", "pros", "cons"]),
     }])),
   };
 }
@@ -243,7 +259,7 @@ function toggleList(id, btn) {
 }
 function cardHTML(c) {
   const co = DATA.countries[c.country_id] || {};
-  return '<article class="tcard"><div class="art" style="height:96px;"><img class="ph" src="/img/' + c.id + '.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="scrim"></span>' +
+  return '<article class="tcard"><div class="art" data-modal="' + c.id + '" style="height:96px;"><img class="ph" src="/img/' + c.id + '.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="scrim"></span>' +
     '<span class="badge">Safety <b>' + c.safety_10 + '/10</b></span></div><div class="tbody"><h3><a href="/destination/' + c.id + '">' + c.name + '</a></h3>' +
     '<div class="sub">' + (c.type || "") + ' in ' + (co.name || "") + ' · safety ' + c.safety_10 + '/10</div>' +
     '<p><strong>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</strong>/month · <strong>' + c.internet_mbps + ' Mbps</strong></p></div>' +
@@ -264,34 +280,70 @@ function renderContinue() {
   host.innerHTML = c ? '<section class="rail"><h2>Continue planning</h2><div class="track">' + cardHTML(c) + "</div></section>" : "";
   bindCards(host);
 }
+function money0(n) { return "$" + Number(n).toLocaleString("en-US"); }
+function wifiVerdict(m) { return m >= 50 ? "Video calls, uploads, streaming — comfortable" : m >= 25 ? "Fine for video calls; big uploads will crawl" : "Light work only — video calls may struggle"; }
+function safetyWord(s) { return s >= 8 ? "High on record" : s >= 6.5 ? "Mid-range — normal city awareness" : "Lower on record — research areas first"; }
+function heroHTML(img, title, sub) {
+  return '<div class="mhero"><div class="phimg" style="background-image:url(' + img + ')"></div><div class="mscrim"></div><button class="mclose" type="button" data-close>✕</button>' +
+    '<div class="mtitle"><div style="font-size:30px;font-weight:bold;">' + title + '</div><div>' + sub + '</div></div></div>';
+}
+function wireModal() {
+  const veil = document.getElementById("modal-veil"); const box = document.getElementById("modal-box");
+  if (!veil || !box) return;
+  box.querySelectorAll("[data-open-city]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-open-city")); });
+  box.querySelectorAll("[data-open-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-open-country")); });
+  veil.scrollTop = 0;
+  const img = box.querySelector(".phimg");
+  veil.onscroll = () => { if (img) img.style.transform = "translateY(" + Math.min(Math.max(veil.scrollTop, 0) * 0.3, 70) + "px)"; };
+}
 function openModal(kind, id) {
   const veil = document.getElementById("modal-veil"); const box = document.getElementById("modal-box");
   if (!veil || !box) return;
   if (kind === "city") {
     const c = DATA.cities[id]; if (!c) return; const co = DATA.countries[c.country_id] || {};
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(/img/' + c.id + '.jpg) center/cover"><button class="mclose" type="button" data-close>✕</button>' +
-      '<div><div style="font-size:30px;font-weight:bold;">' + c.name + '</div><div>' + (c.type || "") + ' in ' + (co.name || "") + '</div></div></div>' +
-      '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
-      '<div>Rent<b>' + (c.rent_usd != null ? "$" + Number(c.rent_usd).toLocaleString("en-US") : "Not in the data") + '</b></div>' +
+    const decide = [];
+    if (c.rent_usd != null && c.monthly_cost_usd) {
+      decide.push('<div>Rent share<b>' + Math.round((c.rent_usd / c.monthly_cost_usd) * 100) + '% of budget</b></div>');
+      decide.push('<div>Left for living<b>' + money0(c.monthly_cost_usd - c.rent_usd) + '/mo</b></div>');
+    } else {
+      decide.push('<div>Rent<b>Not on record</b></div>');
+    }
+    decide.push('<div>Internet verdict<b>' + wifiVerdict(c.internet_mbps) + '</b></div>');
+    decide.push('<div>Safety read<b>' + safetyWord(c.safety_10) + '</b></div>');
+    box.innerHTML = heroHTML('/img/' + c.id + '.jpg', c.name, (c.type || "") + ' in ' + (co.name || "") + (c.vibe && c.vibe.length ? ' · ' + c.vibe.join(' · ') : '')) +
+      '<div class="mbody"><div class="stats"><div>Monthly budget<b>' + money0(c.monthly_cost_usd) + '</b></div>' +
+      '<div>Rent<b>' + (c.rent_usd != null ? money0(c.rent_usd) : "Not in the data") + '</b></div>' +
       '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
       '<div>' + (co.name || "Country") + ' Nomad Score<b>' + (co.nomad_score ?? "—") + '</b></div>' +
       '<div>Stay on record<b>' + (co.visa_duration || "—") + '</b></div></div>' +
-      '<p style="line-height:1.6;">' + (c.note || "") + '</p>' +
-      '<p class="note">' + c.neighbourhoods + ' neighbourhoods · ' + c.experiences + ' experiences on the full page.</p>' +
-      '<p><a class="btn dark" href="/plan?destination=' + c.id + '">Plan a stay in ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div>';
+      '<div class="stats" style="margin-top:0;">' + decide.join("") + '</div>' +
+      (c.description ? '<div class="msec"><h4>The full picture, from the record</h4><p style="line-height:1.65;margin:0;">' + c.description + '</p></div>' : '<p style="line-height:1.6;">' + (c.note || "") + '</p>') +
+      (c.neighbourhoods && c.neighbourhoods.length ? '<div class="msec"><h4>Neighbourhoods</h4><div class="hoods">' + c.neighbourhoods.map((h) => '<div class="hood"><b>' + h.name + '</b>' + (h.about || "") + '</div>').join("") + '</div></div>' : '') +
+      (c.coworking && c.coworking.length ? '<div class="msec"><h4>Working from here</h4><ul class="tick">' + c.coworking.map((w) => '<li>' + w + '</li>').join("") + '</ul></div>' : '') +
+      (c.experiences && c.experiences.length ? '<div class="msec"><h4>Experiences on record</h4>' + c.experiences.map((e) => '<div class="xrow"><span>' + e.name + (e.category ? ' <small>' + e.category + '</small>' : '') + '</span><small>' + (e.duration || "") + (e.price_usd != null ? ' · ' + (Array.isArray(e.price_usd) ? money0(e.price_usd[0]) + '–' + money0(e.price_usd[1]) : money0(e.price_usd)) : '') + '</small></div>').join("") + '</div>' : '') +
+      '<div class="msec"><p style="margin:0 0 10px;"><button class="fchip" type="button" style="cursor:pointer;" data-open-country="' + c.country_id + '">See ' + (co.name || "the country") + ' — visa, pros and cons, tax notes</button></p>' +
+      '<p style="margin:0;"><a class="btn dark" href="/plan?destination=' + c.id + '">Plan a stay in ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div></div>';
   } else {
     const c = DATA.countries[id]; if (!c) return;
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(/img/country-' + c.id + '.jpg) center/cover"><button class="mclose" type="button" data-close>✕</button>' +
-      '<div><div style="font-size:30px;font-weight:bold;">' + (c.flag || "") + ' ' + c.name + '</div><div>' + c.region + ' · Nomad Score ' + c.nomad_score + '</div></div></div>' +
-      '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
+    const cities = Object.values(DATA.cities).filter((x) => x.country_id === c.id);
+    box.innerHTML = heroHTML('/img/country-' + c.id + '.jpg', (c.flag || "") + ' ' + c.name, c.region + ' · Nomad Score ' + c.nomad_score + (c.capital ? ' · Capital: ' + c.capital : '')) +
+      '<div class="mbody"><div class="stats"><div>Monthly budget<b>' + money0(c.monthly_cost_usd) + '</b></div>' +
       '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
       '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div>' +
-      '<div>US travel advisory<b>' + (c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—") + '</b></div></div>' +
+      '<div>US travel advisory<b>' + (c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—") + '</b></div>' +
+      (c.visa_cost_usd != null ? '<div>Visa cost on record<b>' + money0(c.visa_cost_usd) + '</b></div>' : '') +
+      (c.visa_income_requirement_usd_month != null ? '<div>Visa income bar<b>' + money0(c.visa_income_requirement_usd_month) + '/mo</b></div>' : '') + '</div>' +
       '<p style="line-height:1.6;">' + (c.best_for || "") + '</p>' +
-      (c.visa ? '<p style="line-height:1.6;">' + String(c.visa).slice(0, 300) + '</p><p class="note">Stay information from the Outgrid records — flagged unverified, confirm with official sources.</p>' : '') +
+      (c.visa ? '<div class="msec"><h4>Stay and visa, from the record</h4><p style="line-height:1.6;margin:0;">' + String(c.visa) + '</p><p class="note">Stay information from the Outgrid records — flagged unverified, confirm with official sources.</p></div>' : '') +
+      ((c.pros && c.pros.length) || (c.cons && c.cons.length) ? '<div class="cols msec">' +
+        '<div><h4>Working in its favour</h4><ul class="tick">' + (c.pros || []).map((x) => '<li>' + x + '</li>').join("") + '</ul></div>' +
+        '<div><h4>Watch-outs</h4><ul class="tick">' + (c.cons || []).map((x) => '<li>' + x + '</li>').join("") + '</ul></div></div>' : '') +
+      (c.tax_notes ? '<div class="msec"><h4>Tax notes, from the record</h4><p style="line-height:1.6;margin:0;">' + String(c.tax_notes) + '</p><p class="note">General information only — not tax advice.</p></div>' : '') +
+      (cities.length ? '<div class="msec"><h4>Cities on record</h4><div class="citychips">' + cities.map((x) => '<button class="fchip" type="button" style="cursor:pointer;" data-open-city="' + x.id + '">' + x.name + ' · ' + money0(x.monthly_cost_usd) + '/mo</button>').join("") + '</div></div>' : '') +
       '<p><a class="btn dark" href="/country/' + c.id + '">Explore ' + c.name + '</a></p></div>';
   }
   veil.classList.add("open");
+  wireModal();
 }
 function bindCards(root) {
   root.querySelectorAll("[data-list]").forEach((b) => {
@@ -343,6 +395,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderMyList(); renderContinue();
   wireAutocomplete("ac-ai", "ac-ai-list", (p) => { location.href = "/search?nl=" + encodeURIComponent(p.name); });
   wireAutocomplete("ac-q", "ac-q-list", (p) => { const i = document.getElementById("ac-q"); i.value = p.name; i.form.submit(); });
+  const bb = document.querySelector(".billboard .bb-bg");
+  if (bb) { const onS = () => { bb.style.transform = "translateY(" + Math.min(window.scrollY * 0.2, 80) + "px)"; }; addEventListener("scroll", onS, { passive: true }); onS(); }
   const veil = document.getElementById("modal-veil");
   if (veil) {
     veil.addEventListener("click", (e) => { if (e.target === veil || e.target.hasAttribute("data-close")) veil.classList.remove("open"); });
