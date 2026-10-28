@@ -275,13 +275,21 @@ export function renderPlan(plan, city) {
         .join("")}</section>`
     )
     .join("");
+  const summaryBox = plan.verifier_summary
+    ? `<div class="summary">
+      <p class="honest">Planned with AI on Fabrice's travel data, checked claim-by-claim by a second model against the source records.</p>
+      <p><strong>Checker summary:</strong> ${plan.verifier_summary.checked} claims checked · ${plan.verifier_summary.supported} supported · ${plan.verifier_summary.unverifiable} unverifiable (shown with a warning) · ${plan.verifier_summary.dropped ?? 0} dropped as unsupported.
+      ${plan.state === "held" ? `<br><strong>This plan is HELD (${esc(plan.held_reason ?? "")}) and is not published as a finished plan.</strong>` : ""}</p>
+      ${plan.dropped?.length ? `<p>Dropped after checking: ${plan.dropped.map((d) => esc(d.title)).join("; ")}</p>` : ""}
+    </div>`
+    : `<div class="summary">
+      <p class="honest">Planned with AI on Fabrice's travel data, checked claim-by-claim by a second model against the source records.</p>
+      <p><strong>Preview mode:</strong> rendered from the stand-in planner — the live models run when the server has its API keys. Claims on this plan: ${allItems.length} · with a source: ${sourced} · flagged unverified: ${flagged}.</p>
+    </div>`;
   const body = `<main>
     <p class="note"><a href="/destination/${esc(city.id)}">← ${esc(city.name)}</a></p>
     <h2>Your ${esc(city.name)} plan</h2>
-    <div class="summary">
-      <p class="honest">Planned with AI on Fabrice's travel data, checked claim-by-claim by a second model against the source records.</p>
-      <p><strong>Preview mode:</strong> rendered from the stand-in planner while the two real models are being wired in (build in progress). Claims on this plan: ${allItems.length} · with a source: ${sourced} · flagged unverified: ${flagged}.</p>
-    </div>
+    ${summaryBox}
     ${days}
     <p><a href="/">← Browse all destinations</a></p>
   </main>`;

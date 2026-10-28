@@ -9,7 +9,10 @@
 import { createServer } from "node:http";
 import { validateIntake } from "./intake.js";
 import { buildStubPlan } from "./planner-stub.js";
-import { getCity } from "./records.js";
+import { getCity, getCountry } from "./records.js";
+import { loadConfig, liveModelsReady } from "./config.js";
+import { runPipeline } from "./pipeline.js";
+import { callModelJson } from "./model-client.js";
 import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, esc } from "./render.js";
 
 const PORT = process.env.PORT || 3000;
@@ -19,7 +22,7 @@ function send(res, html) {
   res.end(html);
 }
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   try {
     if (url.pathname === "/") {
@@ -58,8 +61,22 @@ const server = createServer((req, res) => {
         res.writeHead(400, { "content-type": "text/html; charset=utf-8" });
         return res.end(`<p>That plan request needs a fix: ${esc(errors.join("; "))}</p><p><a href="/plan">Back to the form</a></p>`);
       }
+      const city = getCity(intake.destination_id);
+      const config = loadConfig();
+      if (liveModelsReady(config)) {
+        // Real path: Planner (Muse Spark) → Verifier (Muse Spark Open)
+        // → publish rule. A held plan renders with its held notice.
+        const plan = await runPipeline({
+          callModel: callModelJson,
+          config,
+          intake,
+          city,
+          country: getCountry(city.country_id),
+        });
+        return send(res, renderPlan(plan, city));
+      }
       const plan = buildStubPlan(intake);
-      return send(res, renderPlan(plan, getCity(intake.destination_id)));
+      return send(res, renderPlan(plan, city));
     }
     res.writeHead(404, { "content-type": "text/plain" });
     res.end("Not found");
