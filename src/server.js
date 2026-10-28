@@ -7,6 +7,7 @@
 //                        the real Planner + Verifier swap in behind
 //                        the same pages in the next build steps)
 import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
 import { validateIntake } from "./intake.js";
 import { buildStubPlan } from "./planner-stub.js";
 import { getCity, getCountry } from "./records.js";
@@ -39,6 +40,23 @@ const server = createServer(async (req, res) => {
         type: url.searchParams.get("type") || "",
         sort: url.searchParams.get("sort") || "recommended",
       }));
+    }
+    if (url.pathname.startsWith("/img/")) {
+      // Card artwork (Muse Image, generated for this demo) — strict
+      // filename whitelist, no path traversal.
+      const name = url.pathname.slice("/img/".length);
+      if (!/^[a-z0-9-]+\.jpg$/.test(name)) {
+        res.writeHead(404, { "content-type": "text/plain" });
+        return res.end("Not found");
+      }
+      try {
+        const buf = await readFile(new URL(`../public/img/${name}`, import.meta.url));
+        res.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=86400" });
+        return res.end(buf);
+      } catch {
+        res.writeHead(404, { "content-type": "text/plain" });
+        return res.end("Not found");
+      }
     }
     if (url.pathname === "/search") {
       const nl = (url.searchParams.get("nl") || "").trim();

@@ -33,7 +33,8 @@ const CSS = `
   .billboard::before { content:""; position:absolute; inset:0; background:
     repeating-linear-gradient(90deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px),
     repeating-linear-gradient(0deg, rgba(244,240,232,.05) 0 1px, transparent 1px 72px); }
-  .billboard::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(27,40,53,.92) 4%, transparent 55%); }
+  .billboard::after { content:""; position:absolute; inset:0; background:linear-gradient(to top, rgba(27,40,53,.92) 4%, transparent 55%); z-index:1; }
+  .billboard .bb-bg { position:absolute; inset:0; background-size:cover; background-position:center; z-index:0; }
   .billboard .bb-in { position:relative; z-index:2; padding:0 4% 42px; max-width:760px; }
   .billboard .kicker { text-transform:uppercase; letter-spacing:.22em; font-size:12px; color:#e8cf9a; margin-bottom:10px; }
   .billboard h1 { font-size:52px; line-height:1.04; margin:0 0 12px; }
@@ -69,11 +70,13 @@ const CSS = `
   /* Cards */
   .tcard { flex:0 0 248px; scroll-snap-align:start; background:var(--card); border:1px solid #ddd5c3; border-radius:12px; overflow:hidden; position:relative; transition:transform .22s ease, box-shadow .22s ease; }
   .tcard:hover { transform:scale(1.06); z-index:20; box-shadow:0 16px 38px rgba(38,54,70,.35); }
-  .tcard .art { height:118px; position:relative; display:flex; align-items:flex-end; padding:10px 12px; color:var(--cream); overflow:hidden; }
-  .tcard .art::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px), repeating-linear-gradient(0deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px); }
-  .tcard .art .initial { position:absolute; right:6px; top:-14px; font-size:104px; font-weight:bold; color:rgba(244,240,232,.16); line-height:1; }
-  .tcard .art .flag { position:relative; font-size:22px; }
-  .tcard .art .badge { position:relative; margin-left:auto; background:var(--ink); color:var(--cream); border-radius:6px; padding:3px 9px; font-size:12px; }
+  .tcard .art { height:132px; position:relative; display:flex; align-items:flex-end; padding:10px 12px; color:var(--cream); overflow:hidden; }
+  .tcard .art::before { content:""; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px), repeating-linear-gradient(0deg, rgba(244,240,232,.06) 0 1px, transparent 1px 34px); z-index:1; }
+  .tcard .art img.ph { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+  .tcard .art .scrim { position:absolute; inset:0; background:linear-gradient(to top, rgba(27,40,53,.45), transparent 55%); z-index:1; }
+  .tcard .art .initial { position:absolute; right:6px; top:-14px; font-size:104px; font-weight:bold; color:rgba(244,240,232,.16); line-height:1; z-index:1; }
+  .tcard .art .flag { position:relative; font-size:22px; z-index:2; text-shadow:0 1px 6px rgba(0,0,0,.5); }
+  .tcard .art .badge { position:relative; margin-left:auto; background:var(--ink); color:var(--cream); border-radius:6px; padding:3px 9px; font-size:12px; z-index:2; }
   .tcard .art .badge b { color:#e8cf9a; font-size:14px; }
   .tcard .tbody { padding:12px 13px 13px; }
   .tcard h3 { margin:0 0 2px; font-size:18px; }
@@ -137,7 +140,7 @@ function page(title, body, extra = "") {
 <body>
 <header class="top"><div class="brand">Out<span>grid</span></div><nav><a href="/">Destinations</a><a href="/#countries">Countries</a><a href="/plan">Plan a stay</a></nav></header>
 ${body}
-<footer>Outgrid Plan Agent — a hackathon demo recreating outgrid.io from an exported data snapshot. Demo only: no live data, no bookings. Built for the Meta Global AI Developer Hackathon, Oct 27 – Nov 4, 2026.</footer>
+<footer>Outgrid Plan Agent — a hackathon demo recreating outgrid.io from an exported data snapshot. Demo only: no live data, no bookings. Card artwork generated with Muse Image (Meta Model API) for this demo. Built for the Meta Global AI Developer Hackathon, Oct 27 – Nov 4, 2026.</footer>
 ${extra}
 </body></html>`;
 }
@@ -150,14 +153,17 @@ function cityCard(c, country) {
   const art = REGION_ART[country?.region] ?? FALLBACK_ART;
   return `<article class="tcard" data-city="${esc(c.id)}">
     <div class="art" style="background:${art}">
+      <img class="ph" src="/img/${esc(c.id)}.jpg" alt="${esc(c.name)}" loading="lazy" onerror="this.remove()">
+      <span class="scrim"></span>
       <span class="initial">${esc(c.name.slice(0, 1))}</span>
       <span class="flag">${esc(country?.flag ?? "")}</span>
       <span class="badge">Safety <b>${esc(c.safety_10)}/10</b></span>
     </div>
     <div class="tbody">
       <h3><a href="/destination/${esc(c.id)}">${esc(c.name)}</a></h3>
-      <div class="sub">${esc(c.type ?? "")} in ${esc(country?.name ?? c.country_id)}</div>
+      <div class="sub">${esc(c.type ?? "")} in ${esc(country?.name ?? c.country_id)}${country?.nomad_score != null ? ` · Nomad Score ${esc(country.nomad_score)}` : ""}</div>
       <p><strong>${money(c.monthly_cost_usd)}</strong>/month · <strong>${esc(c.internet_mbps)} Mbps</strong>${c.rent_usd != null ? ` · Rent ${money(c.rent_usd)}` : ""}</p>
+      ${country?.visa_duration ? `<p class="sub" style="margin:2px 0;">Stay on record: ${esc(country.visa_duration)}</p>` : ""}
       <p>${(c.vibe ?? []).slice(0, 3).map((v) => `<span class="tag">${esc(v)}</span>`).join("")}</p>
     </div>
     <div class="hover-panel">
@@ -173,14 +179,17 @@ function countryCard(c) {
   const art = REGION_ART[c.region] ?? FALLBACK_ART;
   return `<article class="tcard" data-country="${esc(c.id)}">
     <div class="art" style="background:${art}">
+      <img class="ph" src="/img/country-${esc(c.id)}.jpg" alt="${esc(c.name)}" loading="lazy" onerror="this.remove()">
+      <span class="scrim"></span>
       <span class="initial">${esc(c.name.slice(0, 1))}</span>
       <span class="flag">${esc(c.flag ?? "")}</span>
       <span class="badge">Nomad Score <b>${esc(c.nomad_score)}</b></span>
     </div>
     <div class="tbody">
       <h3><a href="/country/${esc(c.id)}">${esc(c.name)}</a></h3>
-      <div class="sub">${esc(c.region)} · Safety ${esc(c.safety_10)}/10</div>
+      <div class="sub">${esc(c.region)} · Safety ${esc(c.safety_10)}/10${c.us_travel_advisory_level != null ? ` · US advisory L${esc(c.us_travel_advisory_level)}` : ""}</div>
       <p><strong>${money(c.monthly_cost_usd)}</strong>/month · <strong>${esc(c.internet_mbps)} Mbps</strong></p>
+      ${c.visa_duration ? `<p class="sub" style="margin:2px 0;">Stay on record: ${esc(c.visa_duration)}</p>` : ""}
       <p>${esc(c.best_for ?? "")}</p>
     </div>
     <div class="hover-panel">
@@ -206,7 +215,7 @@ function clientData() {
       experiences: (c.experiences ?? []).length,
     }])),
     countries: Object.fromEntries(countries.map((c) => [c.id, {
-      ...slim(c, ["id", "name", "region", "flag", "nomad_score", "monthly_cost_usd", "internet_mbps", "safety_10", "best_for", "visa_duration"]),
+      ...slim(c, ["id", "name", "region", "flag", "nomad_score", "monthly_cost_usd", "internet_mbps", "safety_10", "best_for", "visa_duration", "visa", "us_travel_advisory_level"]),
     }])),
   };
 }
@@ -224,7 +233,8 @@ function toggleList(id, btn) {
 }
 function cardHTML(c) {
   const co = DATA.countries[c.country_id] || {};
-  return '<article class="tcard"><div class="tbody"><h3><a href="/destination/' + c.id + '">' + c.name + '</a></h3>' +
+  return '<article class="tcard"><div class="art" style="height:96px;"><img class="ph" src="/img/' + c.id + '.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="scrim"></span>' +
+    '<span class="badge">Safety <b>' + c.safety_10 + '/10</b></span></div><div class="tbody"><h3><a href="/destination/' + c.id + '">' + c.name + '</a></h3>' +
     '<div class="sub">' + (c.type || "") + ' in ' + (co.name || "") + ' · safety ' + c.safety_10 + '/10</div>' +
     '<p><strong>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</strong>/month · <strong>' + c.internet_mbps + ' Mbps</strong></p></div>' +
     '<div class="hover-panel"><a class="icon-btn" href="/destination/' + c.id + '">Explore</a><a class="icon-btn" href="/plan?destination=' + c.id + '">Plan</a>' +
@@ -249,22 +259,26 @@ function openModal(kind, id) {
   if (!veil || !box) return;
   if (kind === "city") {
     const c = DATA.cities[id]; if (!c) return; const co = DATA.countries[c.country_id] || {};
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(120deg,#40586e,#263646)"><button class="mclose" type="button" data-close>✕</button>' +
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(\'/img/' + c.id + '.jpg\') center/cover"><button class="mclose" type="button" data-close>✕</button>' +
       '<div><div style="font-size:30px;font-weight:bold;">' + c.name + '</div><div>' + (c.type || "") + ' in ' + (co.name || "") + '</div></div></div>' +
       '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
       '<div>Rent<b>' + (c.rent_usd != null ? "$" + Number(c.rent_usd).toLocaleString("en-US") : "Not in the data") + '</b></div>' +
-      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div></div>' +
+      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
+      '<div>' + (co.name || "Country") + ' Nomad Score<b>' + (co.nomad_score ?? "—") + '</b></div>' +
+      '<div>Stay on record<b>' + (co.visa_duration || "—") + '</b></div></div>' +
       '<p style="line-height:1.6;">' + (c.note || "") + '</p>' +
       '<p class="note">' + c.neighbourhoods + ' neighbourhoods · ' + c.experiences + ' experiences on the full page.</p>' +
       '<p><a class="btn dark" href="/plan?destination=' + c.id + '">Plan a stay in ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div>';
   } else {
     const c = DATA.countries[id]; if (!c) return;
-    box.innerHTML = '<div class="mhero" style="background:linear-gradient(120deg,#40586e,#263646)"><button class="mclose" type="button" data-close>✕</button>' +
+    box.innerHTML = '<div class="mhero" style="background:linear-gradient(rgba(27,40,53,.18),rgba(27,40,53,.82)),url(\'/img/country-' + c.id + '.jpg\') center/cover"><button class="mclose" type="button" data-close>✕</button>' +
       '<div><div style="font-size:30px;font-weight:bold;">' + (c.flag || "") + ' ' + c.name + '</div><div>' + c.region + ' · Nomad Score ' + c.nomad_score + '</div></div></div>' +
       '<div class="mbody"><div class="stats"><div>Monthly budget<b>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</b></div>' +
       '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
-      '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div></div>' +
+      '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div>' +
+      '<div>US travel advisory<b>' + (c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—") + '</b></div></div>' +
       '<p style="line-height:1.6;">' + (c.best_for || "") + '</p>' +
+      (c.visa ? '<p style="line-height:1.6;">' + String(c.visa).slice(0, 300) + '</p><p class="note">Stay information from Outgrid\'s records — flagged unverified, confirm with official sources.</p>' : '') +
       '<p><a class="btn dark" href="/country/' + c.id + '">Explore ' + c.name + '</a></p></div>';
   }
   veil.classList.add("open");
@@ -311,6 +325,7 @@ export function renderBrowse(params = {}) {
   const hasFilter = params.q || params.maxBudget || params.band || params.type || sort !== "recommended";
   const body = `
   <section class="billboard">
+    <div class="bb-bg" style="background-image:url('/img/${esc(hero.id)}.jpg')"></div>
     <div class="bb-in">
       <div class="kicker">Featured base · ${esc(heroCountry.name)}</div>
       <h1>${esc(hero.name)} — the lagoon base</h1>
@@ -402,6 +417,7 @@ export function renderDestination(cityId) {
   const coworking = (city.coworking ?? []).map((c) => `<li>${esc(c)}</li>`).join("");
   const body = `
   <section class="billboard" style="min-height:44vh;background:${art}">
+    <div class="bb-bg" style="background-image:url('/img/${esc(city.id)}.jpg')"></div>
     <div class="bb-in">
       <div class="kicker">${esc(city.type ?? "")} in ${esc(country.name)}</div>
       <h1>${esc(city.name)}</h1>

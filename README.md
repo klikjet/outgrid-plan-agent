@@ -63,6 +63,7 @@ unsupported. Full evidence in `eval/`.
 |---|---|---|
 | Planner | Muse Spark | Meta Model API |
 | Verifier | Muse Spark Open (`meta-models/muse-spark-open`) | Baseten |
+| Card artwork | Muse Image (`muse-image-1.0`) | Meta Model API |
 
 ## Built during the hackathon (Oct 27 – Nov 4, 2026)
 
@@ -73,6 +74,8 @@ unsupported. Full evidence in `eval/`.
   hover cards, detail modal, My List) on the sample snapshot
 - [x] Classic filters + natural-language search (Muse Spark interprets,
   the records match)
+- [x] Muse Image artwork for every destination card (21 images,
+  generated with the Meta Model API — prompts in the build notes)
 - [ ] Shareable trip page with per-item source citations
 - [ ] Verifier proof test + hero-destination eval (`/eval`) — proof test passed Oct 28, see `eval/`
 
@@ -113,4 +116,9 @@ Never commit a real key to this public repository.
 
 ## Status
 
-Building — Step 4 (scaffold + intake + Planner stub) landed Oct 28. Submission deadline: Wed Nov 4, 2026, 9:00 PM ET.
+Live demo: https://outgrid-plan-agent.onrender.com — cinematic browse
+(billboard, rails, hover cards, detail modal, My List), classic filters,
+natural-language search, and the live Planner → Verifier pipeline when
+the server holds its API keys (a public /health/models page reports
+per-model status). First live run + proof test passed Oct 28 — see
+`eval/`. Submission deadline: Wed Nov 4, 2026, 9:00 PM ET.
