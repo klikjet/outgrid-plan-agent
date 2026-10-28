@@ -56,10 +56,22 @@ production Outgrid codebase.
 
 ## Running it
 
-Setup and judge test instructions land with the first build commits.
+Step 4 (landed Oct 28) ships the scaffold, the intake contract, and a
+deterministic Planner **stub** — no API calls yet. To see the stub plan
+for the hero destination (Bacalar):
+
+```
+node src/cli.js examples/intake-bacalar.json
+```
+
+It prints a 3-day plan JSON in the exact Planner output contract
+(spec §3): every factual item carries `source_refs` to the record field
+it came from, and Bacalar's missing rent figure is flagged
+`unverifiable` — never estimated. Full judge test instructions land
+with the real Planner + Verifier (Oct 28–29).
 API keys are server-side only — see `.env.example` for the variable names.
 Never commit a real key to this public repository.
 
 ## Status
 
-Building. Submission deadline: Wed Nov 4, 2026, 9:00 PM ET.
+Building — Step 4 (scaffold + intake + Planner stub) landed Oct 28. Submission deadline: Wed Nov 4, 2026, 9:00 PM ET.
