@@ -56,6 +56,16 @@ const CSS = `
   .sentence { margin-top:14px; font-size:15px; color:var(--line); line-height:2; }
   .sentence input, .sentence select { font:inherit; font-size:15px; border:0; border-bottom:2px solid var(--gold); background:transparent; padding:2px 4px; color:var(--ink); }
   .sentence input[type=number] { width:96px; }
+  /* Place autocomplete (all cities + countries from the records) */
+  .ac-wrap { position:relative; }
+  .aisearch .ac-wrap { flex:1; display:flex; }
+  .aisearch .ac-wrap input { flex:1; }
+  .sentence .ac-wrap { display:inline-block; }
+  .ac-list { position:absolute; top:calc(100% + 6px); left:0; right:0; min-width:260px; background:#fff; border:1px solid #ddd5c3; border-radius:10px; box-shadow:0 18px 40px rgba(38,54,70,.25); z-index:130; max-height:308px; overflow:auto; display:none; text-align:left; }
+  .ac-list.open { display:block; }
+  .ac-item { display:flex; justify-content:space-between; gap:12px; padding:9px 12px; cursor:pointer; font-size:14.5px; color:var(--ink); line-height:1.35; }
+  .ac-item small { color:#8496a5; white-space:nowrap; }
+  .ac-item.on, .ac-item:hover { background:#eef2f5; }
   /* Chips filter row */
   .filters { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 6px; align-items:center; }
   .filters a, .filters .chipbtn { border:1px solid #c9c0aa; background:var(--card); color:var(--ink); border-radius:999px; padding:5px 13px; font-size:13px; text-decoration:none; font-family:inherit; cursor:pointer; }
@@ -292,9 +302,47 @@ function bindCards(root) {
   root.querySelectorAll("[data-modal]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-modal")); });
   root.querySelectorAll("[data-modal-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-modal-country")); });
 }
+// --- Place autocomplete: every city and country in the records,
+// no model involved. Picking a place goes straight to its results.
+const PLACES = [
+  ...Object.values(DATA.cities).map((c) => ({ name: c.name, kind: "City", sub: DATA.countries[c.country_id]?.name ?? "", monthly: c.monthly_cost_usd })),
+  ...Object.values(DATA.countries).map((c) => ({ name: c.name, kind: "Country", sub: c.region ?? "", monthly: c.monthly_cost_usd })),
+].sort((a, b) => a.name.localeCompare(b.name));
+function wireAutocomplete(inputId, listId, onPick) {
+  const input = document.getElementById(inputId), list = document.getElementById(listId);
+  if (!input || !list) return;
+  let items = [], active = -1;
+  const close = () => { list.classList.remove("open"); list.innerHTML = ""; items = []; active = -1; };
+  const pick = (p) => { if (!p) return; close(); onPick(p); };
+  function show() {
+    const q = input.value.trim().toLowerCase();
+    const matches = q === "" ? PLACES : [
+      ...PLACES.filter((p) => p.name.toLowerCase().startsWith(q)),
+      ...PLACES.filter((p) => !p.name.toLowerCase().startsWith(q) && p.name.toLowerCase().includes(q)),
+    ];
+    items = matches.slice(0, q === "" ? PLACES.length : 8);
+    active = items.length ? 0 : -1;
+    list.innerHTML = items.map((p, i) => '<div class="ac-item' + (i === active ? " on" : "") + '" data-i="' + i + '"><span><b>' + p.name + "</b> <small>" + p.kind + (p.sub ? " · " + p.sub : "") + "</small></span><small>$" + Number(p.monthly).toLocaleString("en-US") + "/mo</small></div>").join("");
+    list.classList.toggle("open", items.length > 0);
+    list.querySelectorAll(".ac-item").forEach((el) => el.addEventListener("mousedown", (e) => { e.preventDefault(); pick(items[Number(el.dataset.i)]); }));
+  }
+  input.addEventListener("focus", show);
+  input.addEventListener("input", show);
+  input.addEventListener("blur", () => setTimeout(close, 150));
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault(); if (!items.length) return;
+      active = (active + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      list.querySelectorAll(".ac-item").forEach((el, i) => el.classList.toggle("on", i === active));
+    } else if (e.key === "Enter" && items.length && list.classList.contains("open")) { e.preventDefault(); pick(items[active]); }
+    else if (e.key === "Escape") close();
+  });
+}
 document.addEventListener("DOMContentLoaded", () => {
   bindCards(document);
   renderMyList(); renderContinue();
+  wireAutocomplete("ac-ai", "ac-ai-list", (p) => { location.href = "/search?nl=" + encodeURIComponent(p.name); });
+  wireAutocomplete("ac-q", "ac-q-list", (p) => { const i = document.getElementById("ac-q"); i.value = p.name; i.form.submit(); });
   const veil = document.getElementById("modal-veil");
   if (veil) {
     veil.addEventListener("click", (e) => { if (e.target === veil || e.target.hasAttribute("data-close")) veil.classList.remove("open"); });
@@ -346,12 +394,12 @@ export function renderBrowse(params = {}) {
     <h3>Search in your own words</h3>
     <p class="note">Powered by Muse Spark: describe the base you want and the model turns it into filters — the data does the matching, and the results page shows you exactly what it heard.</p>
     <form class="aisearch" method="get" action="/search">
-      <input type="text" name="nl" placeholder="Quiet beach town under $1,200 a month with decent wifi for calls…">
+      <span class="ac-wrap"><input type="text" id="ac-ai" name="nl" autocomplete="off" placeholder="Start typing a place — Bacalar, Lisbon… — or describe your base"><span class="ac-list" id="ac-ai-list"></span></span>
       <button class="btn dark" type="submit">Search with AI</button>
     </form>
     <form class="sentence" method="get" action="/">
       Or the classic way — I'd like to be in
-      <input type="text" name="q" placeholder="Where to?" value="${esc(params.q || "")}">
+      <span class="ac-wrap"><input type="text" id="ac-q" name="q" autocomplete="off" placeholder="Where to?" value="${esc(params.q || "")}"><span class="ac-list" id="ac-q-list"></span></span>
       with a budget of <input type="number" name="budget" placeholder="2500" value="${esc(params.maxBudget || "")}" min="0"> /month
       <button class="btn dark small" type="submit">Search</button>
     </form>

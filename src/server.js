@@ -10,7 +10,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { validateIntake } from "./intake.js";
 import { buildStubPlan } from "./planner-stub.js";
-import { getCity, getCountry } from "./records.js";
+import { getCity, getCountry, loadData } from "./records.js";
 import { loadConfig, liveModelsReady } from "./config.js";
 import { runPipeline } from "./pipeline.js";
 import { callModelJson } from "./model-client.js";
@@ -69,6 +69,22 @@ const server = createServer(async (req, res) => {
     if (url.pathname === "/search") {
       const nl = (url.searchParams.get("nl") || "").trim();
       if (!nl) return redirect(res, "/");
+      // Exact place names never need the model: a city or country that
+      // is in the data goes straight to its records.
+      {
+        const { cities: allCities, countries: allCountries } = loadData();
+        const qn = nl.toLowerCase();
+        const cityHit = allCities.find((c) => c.name.toLowerCase() === qn);
+        const countryHit = allCountries.find((c) => c.name.toLowerCase() === qn || c.name.toLowerCase().replace(/\s*\(.*?\)\s*/g, "").trim() === qn);
+        if (cityHit || countryHit) {
+          const countryById = Object.fromEntries(allCountries.map((c) => [c.id, c]));
+          const cities = cityHit ? [cityHit] : allCities.filter((c) => c.country_id === countryHit.id);
+          const note = cityHit
+            ? `${cityHit.name} is in the data — showing it directly, no guessing involved.`
+            : `${countryHit.name} is in the data — showing all ${cities.length} of its cities on record.`;
+          return send(res, renderSearchResults({ query: nl, chips: [], cities, countryById, aiUsed: false, note }));
+        }
+      }
       const config = loadConfig();
       if (liveModelsReady(config)) {
         try {
