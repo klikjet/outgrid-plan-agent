@@ -32,6 +32,15 @@ Visa and safety content is only used when the underlying record field is
 human-reviewed; otherwise it is omitted or flagged unverifiable. The model
 never invents hotels, prices, transit times, or stay rules.
 
+**The demo site:** the browsable front-end in this repo recreates
+outgrid.io's experience — the "Find Your Perfect Next Base" homepage
+search, country pages with Nomad Scores, destination pages with
+neighbourhoods, coworking and experiences, and the plan pages — rebuilt
+from the exported data snapshot in `data/`. It is original code written
+for this hackathon: no production code, and no live APIs — the demo runs
+entirely on the snapshot, so what you browse is exactly what the Planner
+is allowed to use.
+
 ## Models
 
 | Role | Model | Served via |
@@ -44,6 +53,8 @@ never invents hotels, prices, transit times, or stay rules.
 - [ ] Intake form + Planner (Muse Spark) → structured itinerary JSON
 - [ ] Verifier (Muse Spark Open) → per-claim verdicts + one retry loop
 - [ ] Publish rule — verifier-gated; held plans never publish
+- [x] Browsable front-end recreating outgrid.io (home, country +
+  destination pages) on the sample snapshot — no live APIs
 - [ ] Shareable trip page with per-item source citations
 - [ ] Verifier proof test + hero-destination eval (`/eval`)
 
@@ -64,7 +75,11 @@ for the hero destination (Bacalar):
 node src/cli.js examples/intake-bacalar.json
 ```
 
-It prints a 3-day plan JSON in the exact Planner output contract
+Or browse the demo site locally — `npm run serve`, then open
+http://localhost:3000 for the homepage search, country and destination
+pages, the intake form, and rendered plan pages.
+
+The CLI prints a 3-day plan JSON in the exact Planner output contract
 (spec §3): every factual item carries `source_refs` to the record field
 it came from, and Bacalar's missing rent figure is flagged
 `unverifiable` — never estimated. Full judge test instructions land

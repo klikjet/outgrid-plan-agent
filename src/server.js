@@ -10,7 +10,7 @@ import { createServer } from "node:http";
 import { validateIntake } from "./intake.js";
 import { buildStubPlan } from "./planner-stub.js";
 import { getCity } from "./records.js";
-import { renderBrowse, renderIntake, renderPlan, esc } from "./render.js";
+import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, esc } from "./render.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,7 +22,19 @@ function send(res, html) {
 const server = createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   try {
-    if (url.pathname === "/") return send(res, renderBrowse());
+    if (url.pathname === "/") {
+      return send(res, renderBrowse({
+        q: url.searchParams.get("q") || "",
+        maxBudget: url.searchParams.get("budget") || "",
+        band: url.searchParams.get("band") || "",
+      }));
+    }
+    if (url.pathname.startsWith("/destination/")) {
+      return send(res, renderDestination(decodeURIComponent(url.pathname.slice("/destination/".length))));
+    }
+    if (url.pathname.startsWith("/country/")) {
+      return send(res, renderCountry(decodeURIComponent(url.pathname.slice("/country/".length))));
+    }
     if (url.pathname === "/plan") {
       return send(res, renderIntake(url.searchParams.get("destination") || "bacalar"));
     }
