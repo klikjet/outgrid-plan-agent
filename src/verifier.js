@@ -1,5 +1,5 @@
 // The Verifier (builder spec §4) — Muse Spark Open via Baseten
-// (model id meta-models/muse-spark-open-1026). Checks the Planner's
+// (live model id meta-models/muse-spark-open). Checks the Planner's
 // draft claim-by-claim against the same source records.
 import { ModelResponseError } from "./model-client.js";
 
@@ -36,9 +36,19 @@ export function normalizeVerdicts(raw, plan) {
     verdicts.push({ item_id: v.item_id, verdict: v.verdict, note: String(v.note ?? "") });
   }
   if (verdicts.length === 0) throw new ModelResponseError("Verifier returned no usable verdicts");
-  const summary = { checked: verdicts.length, supported: 0, unsupported: 0, unverifiable: 0 };
-  for (const v of verdicts) summary[v.verdict] += 1;
-  return { verdicts, summary };
+  // Account for every item: one the model skipped is flagged
+  // "unverifiable" — it never passes by silence.
+  const byId = new Map(verdicts.map((v) => [v.item_id, v]));
+  const complete = plan.days.flatMap((d) => d.items).map((item) =>
+    byId.get(item.id) ?? {
+      item_id: item.id,
+      verdict: "unverifiable",
+      note: "The Verifier returned no verdict for this item, so it is flagged rather than passed silently.",
+    }
+  );
+  const summary = { checked: complete.length, supported: 0, unsupported: 0, unverifiable: 0 };
+  for (const v of complete) summary[v.verdict] += 1;
+  return { verdicts: complete, summary };
 }
 
 export async function runVerifier(callModel, config, plan, city, country) {

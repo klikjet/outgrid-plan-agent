@@ -12,6 +12,7 @@ Hard rules:
 - Visa/safety/stay content: the country record is not human-verified, so any stay item must include "unverifiable": true.
 - If a field is absent from the record (for example rent_usd is null), never estimate it: either omit it, or include one item flagged "unverifiable": true that says the figure is not in the record.
 - Stay within the traveler's budget range and pace. If the record cannot fill a day, put less in that day instead of padding with inventions.
+- Money rule: state a dollar amount ONLY when that exact amount appears in a source field you cite for the same item. Never do money arithmetic in a claim — no totals, averages, conversions, or "leaves you $X" figures — because plain code re-checks every dollar amount against the cited fields exactly.
 
 Output STRICT JSON only, no prose outside it:
 {"days":[{"date":"YYYY-MM-DD","items":[{"title":"...","detail":"...","claim_type":"...","source_refs":["..."],"unverifiable":true}]}]}

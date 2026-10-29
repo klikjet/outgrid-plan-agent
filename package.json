@@ -7,7 +7,8 @@
   "name": "outgrid-plan-agent",
   "scripts": {
     "plan:stub": "node src/cli.js examples/intake-bacalar.json",
-    "serve": "node src/server.js"
+    "serve": "node src/server.js",
+    "test": "node test/grounding.test.js && node test/pipeline.test.js"
   },
   "type": "module",
   "version": "0.1.0"

@@ -15,7 +15,21 @@
 // release from held-by-outage is his own manual verification).
 import { runPlanner } from "./planner.js";
 import { runVerifier } from "./verifier.js";
+import { auditPlanNumbers, mergeVerification } from "./grounding.js";
 import { ModelUnavailableError } from "./model-client.js";
+
+// One verification pass = the Muse Spark Open Verifier's verdicts,
+// merged with the deterministic exact-number audit (plain code: every
+// dollar amount must appear exactly in a cited source field). The
+// audit can add an "unsupported" flag; it can never remove one.
+async function verifyOnce(callModel, config, plan, city, country, log) {
+  const raw = await runVerifier(callModel, config, plan, city, country);
+  const merged = mergeVerification(raw, plan, auditPlanNumbers(plan, city, country));
+  if (merged.audit_flags.length) {
+    stamp(log, config, "exact_number_check", { flagged: merged.audit_flags.map((f) => f.item_id) });
+  }
+  return merged;
+}
 
 function stamp(log, config, event, extra = {}) {
   log.push({
@@ -43,7 +57,7 @@ export async function runPipeline({ callModel, config, intake, city, country }) 
 
   let verification;
   try {
-    verification = await runVerifier(callModel, config, plan, city, country);
+    verification = await verifyOnce(callModel, config, plan, city, country, log);
   } catch (err) {
     if (err instanceof ModelUnavailableError) {
       plan.state = "held";
@@ -63,7 +77,7 @@ export async function runPipeline({ callModel, config, intake, city, country }) 
     plan = await runPlanner(callModel, config, intake, city, country, flags);
     plan.state = "verifying";
     try {
-      verification = await runVerifier(callModel, config, plan, city, country);
+      verification = await verifyOnce(callModel, config, plan, city, country, log);
     } catch (err) {
       if (err instanceof ModelUnavailableError) {
         plan.state = "held";
@@ -76,6 +90,8 @@ export async function runPipeline({ callModel, config, intake, city, country }) 
     }
     stamp(log, config, "verified_after_retry", { summary: verification.summary });
   }
+
+  plan.exact_number_flags = verification.audit_flags ?? [];
 
   // Publish rule.
   const dropped = [];
