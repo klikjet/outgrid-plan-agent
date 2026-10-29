@@ -14,20 +14,48 @@ import { getCity, getCountry, loadData } from "./records.js";
 import { loadConfig, liveModelsReady } from "./config.js";
 import { runPipeline } from "./pipeline.js";
 import { callModelJson } from "./model-client.js";
-import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, renderSearchResults, esc } from "./render.js";
+import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, renderSearchResults, renderStayRules, renderEvidence, renderHowItWorks, esc } from "./render.js";
 import { interpretQuery, applyInterpreted, describeFilters, keywordFallback } from "./search.js";
 
 const PORT = process.env.PORT || 3000;
 
+// Browser safety headers on every response. The demo's pages use
+// inline styles/scripts by design (zero build step), so the policy
+// allows same-origin inline code while still blocking outside script,
+// frame, object, and base-tag sources by default.
+const SECURITY_HEADERS = {
+  "content-security-policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  "x-content-type-options": "nosniff",
+  "referrer-policy": "strict-origin-when-cross-origin",
+  "permissions-policy": "geolocation=(self), camera=(), microphone=(), payment=()",
+  "x-frame-options": "DENY",
+};
+
 function redirect(res, location) {
-  res.writeHead(302, { location });
+  res.writeHead(302, { ...SECURITY_HEADERS, location });
   res.end();
 }
 
 function send(res, html) {
-  res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+  res.writeHead(200, { ...SECURITY_HEADERS, "content-type": "text/html; charset=utf-8" });
   res.end(html);
 }
+
+function sendText(res, status, text, contentType = "text/plain; charset=utf-8") {
+  res.writeHead(status, { ...SECURITY_HEADERS, "content-type": contentType });
+  res.end(text);
+}
+
+function sendJson(res, value) {
+  res.writeHead(200, { ...SECURITY_HEADERS, "content-type": "application/json" });
+  res.end(JSON.stringify(value, null, 2));
+}
+
+const SECURITY_TXT = `Contact: https://github.com/klikjet/outgrid-plan-agent
+Expires: 2027-10-29T23:59:59Z
+Preferred-Languages: en
+Canonical: https://outgrid-plan-agent.onrender.com/.well-known/security.txt
+`;
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -40,6 +68,36 @@ const server = createServer(async (req, res) => {
         type: url.searchParams.get("type") || "",
         sort: url.searchParams.get("sort") || "recommended",
       }));
+    }
+    if (url.pathname === "/health") {
+      const { cities, countries } = loadData();
+      return sendJson(res, {
+        ok: true,
+        service: "outgrid-plan-agent",
+        timestamp: new Date().toISOString(),
+        records: { countries: countries.length, cities: cities.length },
+        live_models_configured: liveModelsReady(loadConfig()),
+      });
+    }
+    if (url.pathname === "/.well-known/security.txt" || url.pathname === "/security.txt") {
+      return sendText(res, 200, SECURITY_TXT);
+    }
+    if (url.pathname === "/stay-rules") {
+      return send(res, renderStayRules());
+    }
+    if (url.pathname === "/how-it-works") {
+      return send(res, renderHowItWorks());
+    }
+    if (url.pathname === "/evidence" || url.pathname === "/verified-plan") {
+      const [planRaw, proofRaw] = await Promise.all([
+        readFile(new URL("../eval/first-live-plan.json", import.meta.url), "utf8"),
+        readFile(new URL("../eval/proof-test-output.json", import.meta.url), "utf8"),
+      ]);
+      const savedPlan = JSON.parse(planRaw);
+      if (url.pathname === "/verified-plan") {
+        return send(res, renderPlan(savedPlan, getCity(savedPlan.destination_id), { savedRun: true }));
+      }
+      return send(res, renderEvidence({ plan: savedPlan, proof: JSON.parse(proofRaw) }));
     }
     if (url.pathname.startsWith("/img/")) {
       // Card artwork (Muse Image, generated for this demo) — strict
@@ -59,7 +117,7 @@ const server = createServer(async (req, res) => {
         const buf = head.startsWith("/9j/")
           ? Buffer.from(raw.toString("ascii").trim(), "base64")
           : raw;
-        res.writeHead(200, { "content-type": "image/jpeg", "cache-control": "public, max-age=86400", "content-length": buf.length });
+        res.writeHead(200, { ...SECURITY_HEADERS, "content-type": "image/jpeg", "cache-control": "public, max-age=86400", "content-length": buf.length });
         return res.end(buf);
       } catch {
         res.writeHead(404, { "content-type": "text/plain" });
@@ -114,7 +172,10 @@ const server = createServer(async (req, res) => {
       return send(res, renderCountry(decodeURIComponent(url.pathname.slice("/country/".length))));
     }
     if (url.pathname === "/plan") {
-      return send(res, renderIntake(url.searchParams.get("destination") || "bacalar"));
+      return send(res, renderIntake(
+        url.searchParams.get("destination") || "bacalar",
+        url.searchParams.get("interest") || url.searchParams.get("interests") || ""
+      ));
     }
     if (url.pathname === "/plan/view") {
       const q = Object.fromEntries(url.searchParams);
@@ -210,7 +271,7 @@ const server = createServer(async (req, res) => {
           metaModels = { error: `models list unreachable: ${err.message}` };
         }
       }
-      res.writeHead(200, { "content-type": "application/json" });
+      res.writeHead(200, { ...SECURITY_HEADERS, "content-type": "application/json" });
       return res.end(JSON.stringify({
         meta: { model: probeModel, ...meta, models_visible: metaModels,
           // Public docs say real Meta Model API keys start with "LLM_".
