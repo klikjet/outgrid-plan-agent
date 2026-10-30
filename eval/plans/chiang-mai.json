@@ -1,0 +1,156 @@
+{
+  "plan_id": "plan-chiang-mai-2026-11-09",
+  "destination_id": "chiang-mai",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "Morning movement with Muay Thai Training",
+          "detail": "Morning movement session using Muay Thai Training, a sport experience lasting 2h.",
+          "claim_type": "fitness",
+          "source_refs": [
+            "cities.chiang-mai.experiences[2].name",
+            "cities.chiang-mai.experiences[2].category",
+            "cities.chiang-mai.experiences[2].duration"
+          ]
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Focused work at LifeSpace",
+          "detail": "Daily focused work block at LifeSpace with fast wifi.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.chiang-mai.coworking[0]"
+          ]
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Night Market Food Tour",
+          "detail": "Evening food experience with Night Market Food Tour lasting 3h.",
+          "claim_type": "food",
+          "source_refs": [
+            "cities.chiang-mai.experiences[4].name",
+            "cities.chiang-mai.experiences[4].category",
+            "cities.chiang-mai.experiences[4].duration"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Old City temples walk",
+          "detail": "Explore Old City, moated square of Lanna temples, guesthouses and weekend markets.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.chiang-mai.neighbourhoods[1].name",
+            "cities.chiang-mai.neighbourhoods[1].about"
+          ]
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Focused work at CAMP at Maya Mall",
+          "detail": "Daily focused work block at CAMP at Maya Mall with wifi and coffee.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.chiang-mai.coworking[2]"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Temple Bicycle Tour",
+          "detail": "Balanced-paced culture experience by bicycle with Temple Bicycle Tour lasting 4h.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.chiang-mai.experiences[5].name",
+            "cities.chiang-mai.experiences[5].category",
+            "cities.chiang-mai.experiences[5].duration"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Nimmanhaemin base",
+          "detail": "Morning in Nimmanhaemin, cafe-lined sois between MAYA mall and Chiang Mai University.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.chiang-mai.neighbourhoods[0].name",
+            "cities.chiang-mai.neighbourhoods[0].about"
+          ]
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Thai Cooking Class",
+          "detail": "Midday food experience with Thai Cooking Class lasting 4h.",
+          "claim_type": "food",
+          "source_refs": [
+            "cities.chiang-mai.experiences[0].name",
+            "cities.chiang-mai.experiences[0].category",
+            "cities.chiang-mai.experiences[0].duration"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Easy movement around centre",
+          "detail": "Use songthaew trucks, Grab, and scooter rentals; the centre is walkable.",
+          "claim_type": "transit",
+          "source_refs": [
+            "cities.chiang-mai.getting_around"
+          ]
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "exact_number_flags": [],
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 9,
+    "supported": 9,
+    "unsupported": 0,
+    "unverifiable": 0,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:48.603Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:52.010Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:52.010Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      }
+    }
+  ]
+}

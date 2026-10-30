@@ -21,7 +21,12 @@ destination data:
    via Baseten) checks every claim in the draft against those source records
    and returns a per-claim verdict: `supported`, `unsupported`, or
    `unverifiable`. Unsupported claims go back to the Planner once, with the
-   flags attached. Nothing passes silently.
+   flags attached. Nothing passes silently. A deterministic
+   **exact-number check** (plain code, no model) runs alongside it: every
+   dollar amount in a plan item must appear exactly in a source field that
+   item cites, or the item is flagged unsupported too. The code check can
+   add a flag; it can never remove one. Any item the Verifier returns no
+   verdict for is accounted for as `unverifiable` — never passed by silence.
 3. **Verifier-gated publish** — a plan publishes automatically once
    verification completes with zero `unsupported` claims. Still-flagged items
    are dropped and logged; `unverifiable` items publish flagged. No human in
@@ -55,7 +60,31 @@ is allowed to use.
 Spark and checked by Muse Spark Open — 12 claims checked, 11 supported,
 1 unverifiable, 0 dropped — and the proof test passed: an invented
 $340/night hotel slipped into the finished plan was caught and marked
-unsupported. Full evidence in `eval/`.
+unsupported. Full evidence in `eval/`, and readable on the demo itself at
+[`/evidence`](https://outgrid-plan-agent.onrender.com/evidence) — with the
+saved plan itself at
+[`/verified-plan`](https://outgrid-plan-agent.onrender.com/verified-plan).
+
+**Oct 29 release:** the exact-number check above; a five-country
+**Stay Rules — snapshot edition** at
+[`/stay-rules`](https://outgrid-plan-agent.onrender.com/stay-rules)
+(only fields present in the records, all flagged unverified, with the
+not-advice disclaimer); **Add to trip** on experience cards (opens the
+in-app planner pre-filled — no fake booking partner); **Locate me**
+(browser-only nearest-place lookup from record coordinates, nothing
+stored or sent); a plain-language build catalog at
+[`/how-it-works`](https://outgrid-plan-agent.onrender.com/how-it-works);
+and production-style safety basics adapted to the demo — a Content
+Security Policy on every response and a published `security.txt`.
+Production features that need partner keys, licences, accounts, or live
+feeds (Stay22, GetYourGuide, Viator, Stripe, Supabase) were deliberately
+**not** recreated; `/how-it-works` says why, item by item.
+
+**Hero eval (Oct 29, 2026):** the full pipeline ran live for one city
+per country — Bacalar, Chiang Mai, Lisbon, Medellín, and Canggu. All
+five plans published: **51 claims checked, 51 supported, 0 dropped,
+0 final exact-number flags.** Actual runs only; see `eval/hero-eval.md`
+and the plan JSON in `eval/plans/`.
 
 ## Models
 
@@ -64,6 +93,10 @@ unsupported. Full evidence in `eval/`.
 | Planner | Muse Spark | Meta Model API |
 | Verifier | Muse Spark Open (`meta-models/muse-spark-open`) | Baseten |
 | Card artwork | Muse Image (`muse-image-1.0`) | Meta Model API |
+| Exact-number check | No model — deterministic code | In-process |
+
+Every AI role in the running demo is a Meta Muse model. No other AI
+model is used.
 
 ## Built during the hackathon (Oct 27 – Nov 4, 2026)
 
@@ -85,8 +118,15 @@ unsupported. Full evidence in `eval/`.
   the records match)
 - [x] Muse Image artwork for every destination card (21 images,
   generated with the Meta Model API — prompts in the build notes)
-- [ ] Shareable trip page with per-item source citations
-- [ ] Verifier proof test + hero-destination eval (`/eval`) — proof test passed Oct 28, see `eval/`
+- [x] Shareable trip page with per-item source citations (plan URLs,
+  plus the pinned saved verified run at `/verified-plan`)
+- [x] Verifier proof test + hero-destination eval (`/eval`) — proof test
+  passed Oct 28, see `eval/` and `/evidence`
+- [x] Exact-number grounding check (deterministic, tested in
+  `test/grounding.test.js`)
+- [x] Oct 29 Muse-only additions: Stay Rules snapshot edition,
+  experience Add to trip, Locate me, `/how-it-works` build catalog,
+  CSP headers + `security.txt`, `/health`
 
 ## Pre-existing Outgrid (not part of the judged build)
 
@@ -118,8 +158,18 @@ pages, the intake form, and rendered plan pages.
 The CLI prints a 3-day plan JSON in the exact Planner output contract
 (spec §3): every factual item carries `source_refs` to the record field
 it came from, and Bacalar's missing rent figure is flagged
-`unverifiable` — never estimated. Full judge test instructions land
-with the real Planner + Verifier (Oct 28–29).
+`unverifiable` — never estimated.
+
+**Judge test path (2 minutes):** open the live demo →
+[`/evidence`](https://outgrid-plan-agent.onrender.com/evidence) for the
+saved verified plan, its run log, and the proof test side-by-side →
+[`/verified-plan`](https://outgrid-plan-agent.onrender.com/verified-plan)
+to read the checked plan with citations → build your own plan from any
+destination's **Plan** button → skim
+[`/stay-rules`](https://outgrid-plan-agent.onrender.com/stay-rules) and
+[`/how-it-works`](https://outgrid-plan-agent.onrender.com/how-it-works).
+Tests: `npm test` (grounding + pipeline state machine, scripted
+transports, no API calls).
 API keys are server-side only — see `.env.example` for the variable names.
 Never commit a real key to this public repository.
 

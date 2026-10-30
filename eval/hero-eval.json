@@ -1,0 +1,108 @@
+{
+  "eval": "hero-destination live eval — one city per snapshot country, full Planner → Verifier → exact-number check → publish rule",
+  "planner_model": "muse-spark-1.3",
+  "verifier_model": "meta-models/muse-spark-open",
+  "run_at": "2026-10-29T23:07:21.313Z",
+  "results": [
+    {
+      "destination_id": "bacalar",
+      "city": "Bacalar",
+      "country": "Mexico",
+      "state": "published",
+      "held_reason": null,
+      "verifier_summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      },
+      "exact_number_flags_final": 0,
+      "log_events": [
+        "plan_created",
+        "verified",
+        "published"
+      ]
+    },
+    {
+      "destination_id": "chiang-mai",
+      "city": "Chiang Mai",
+      "country": "Thailand",
+      "state": "published",
+      "held_reason": null,
+      "verifier_summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      },
+      "exact_number_flags_final": 0,
+      "log_events": [
+        "plan_created",
+        "verified",
+        "published"
+      ]
+    },
+    {
+      "destination_id": "lisbon",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "state": "published",
+      "held_reason": null,
+      "verifier_summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      },
+      "exact_number_flags_final": 0,
+      "log_events": [
+        "plan_created",
+        "verified",
+        "published"
+      ]
+    },
+    {
+      "destination_id": "medellin",
+      "city": "Medellín",
+      "country": "Colombia",
+      "state": "published",
+      "held_reason": null,
+      "verifier_summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      },
+      "exact_number_flags_final": 0,
+      "log_events": [
+        "plan_created",
+        "verified",
+        "published"
+      ]
+    },
+    {
+      "destination_id": "canggu",
+      "city": "Canggu (Bali)",
+      "country": "Indonesia (Bali)",
+      "state": "published",
+      "held_reason": null,
+      "verifier_summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      },
+      "exact_number_flags_final": 0,
+      "log_events": [
+        "plan_created",
+        "verified",
+        "published"
+      ]
+    }
+  ]
+}

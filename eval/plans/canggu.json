@@ -1,0 +1,148 @@
+{
+  "plan_id": "plan-canggu-2026-11-09",
+  "destination_id": "canggu",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "Ease in at balanced pace",
+          "detail": "Keep the first day light with sequencing that leaves space between work and movement.",
+          "claim_type": "general",
+          "source_refs": []
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Focused work block",
+          "detail": "Daily focused work at Dojo Bali with reliable WiFi for nomad workflow.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.canggu.coworking[1]",
+            "cities.canggu.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Morning movement yoga",
+          "detail": "Drop-in yoga class for morning movement and yoga interest.",
+          "claim_type": "fitness",
+          "source_refs": [
+            "cities.canggu.experiences[3].name"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Beginner surf session",
+          "detail": "Beginner Surf Lesson for surf interest and morning movement.",
+          "claim_type": "fitness",
+          "source_refs": [
+            "cities.canggu.experiences[0].name"
+          ]
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Focused work block",
+          "detail": "Daily focused work at Outpost Canggu with reliable WiFi.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.canggu.coworking[2]",
+            "cities.canggu.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Batu Bolong beach time",
+          "detail": "Visit Batu Bolong temple beach area known for surf and cafes.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.canggu.neighbourhoods[0].name",
+            "cities.canggu.neighbourhoods[0].about"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Morning movement yoga",
+          "detail": "Drop-in yoga class for morning movement and yoga interest.",
+          "claim_type": "fitness",
+          "source_refs": [
+            "cities.canggu.experiences[3].name"
+          ]
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Focused work block",
+          "detail": "Daily focused work at Tribal Coworking Hostel Pererenan with reliable WiFi.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.canggu.coworking[0]",
+            "cities.canggu.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Get around Canggu",
+          "detail": "Get around by scooter and use Grab and Gojek for rides and food delivery.",
+          "claim_type": "transit",
+          "source_refs": [
+            "cities.canggu.getting_around"
+          ]
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "exact_number_flags": [],
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 9,
+    "supported": 9,
+    "unsupported": 0,
+    "unverifiable": 0,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:07:15.211Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:07:21.312Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:07:21.312Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      }
+    }
+  ]
+}

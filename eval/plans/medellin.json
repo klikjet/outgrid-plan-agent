@@ -1,0 +1,179 @@
+{
+  "plan_id": "plan-medellin-2026-11-09",
+  "destination_id": "medellin",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "Morning movement window",
+          "detail": "Keep the morning open for light movement before work to match a balanced pace.",
+          "claim_type": "general",
+          "source_refs": []
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Focused work at Selina Medellín",
+          "detail": "Do focused work at Selina Medellín. The city record lists internet at 70 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.medellin.coworking[0]",
+            "cities.medellin.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Coffee Region Day Trip - Salento",
+          "detail": "Coffee interest option: Coffee Region Day Trip – Salento, listed as full day, priced $55 to $85.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.medellin.experiences[3].name",
+            "cities.medellin.experiences[3].duration",
+            "cities.medellin.experiences[3].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-09-i4",
+          "title": "Evening in El Poblado (Provenza & Parque Lleras)",
+          "detail": "Spend the evening in El Poblado (Provenza & Parque Lleras), listed as best for Nightlife with Upmarket and Nightlife vibe.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.medellin.neighbourhoods[0].name",
+            "cities.medellin.neighbourhoods[0].best_for",
+            "cities.medellin.neighbourhoods[0].vibe"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Morning movement window",
+          "detail": "Reserve the morning for movement before starting work, keeping the day balanced.",
+          "claim_type": "general",
+          "source_refs": []
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Focused work at Semilla Coworking Café (Laureles)",
+          "detail": "Do focused work at Semilla Coworking Café (Laureles). The city record lists internet at 70 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.medellin.coworking[1]",
+            "cities.medellin.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Graffiti Tour – Comuna 13",
+          "detail": "Daytime option: Graffiti Tour – Comuna 13, listed as 2h, priced $15 to $25.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.medellin.experiences[2].name",
+            "cities.medellin.experiences[2].duration",
+            "cities.medellin.experiences[2].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-10-i4",
+          "title": "Explore Laureles–Estadio",
+          "detail": "Spend time in Laureles–Estadio, listed as best for Long stays and Remote work.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.medellin.neighbourhoods[1].name",
+            "cities.medellin.neighbourhoods[1].best_for"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Morning movement window",
+          "detail": "Keep the final morning light for movement and packing, leaving room for work.",
+          "claim_type": "general",
+          "source_refs": []
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Focused work at Los Patios Hostel cowork",
+          "detail": "Do focused work at Los Patios Hostel cowork. The city record lists internet at 70 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.medellin.coworking[2]",
+            "cities.medellin.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Salsa Dancing Class",
+          "detail": "Nightlife interest option: Salsa Dancing Class, listed as 2h, priced $20 to $35.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.medellin.experiences[4].name",
+            "cities.medellin.experiences[4].duration",
+            "cities.medellin.experiences[4].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-11-i4",
+          "title": "Getting around by metro and Metrocable",
+          "detail": "Get around by metro and Metrocable; Uber and DiDi are listed as cheap options.",
+          "claim_type": "transit",
+          "source_refs": [
+            "cities.medellin.getting_around"
+          ]
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "exact_number_flags": [],
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 12,
+    "supported": 12,
+    "unsupported": 0,
+    "unverifiable": 0,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:41.845Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:48.169Z",
+      "summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:48.170Z",
+      "summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      }
+    }
+  ]
+}

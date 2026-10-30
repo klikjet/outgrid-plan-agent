@@ -1,0 +1,177 @@
+{
+  "plan_id": "plan-bacalar-2026-11-09",
+  "destination_id": "bacalar",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "Arrive and settle at balanced pace",
+          "detail": "Keep the first day light with time to orient and rest before lagoon time.",
+          "claim_type": "general",
+          "source_refs": []
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Orient in Bacalar Town",
+          "detail": "Explore Bacalar Town, Main street along the lagoon — hammock bars, hostels, restaurants, sunset views.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.bacalar.neighbourhoods[0].name",
+            "cities.bacalar.neighbourhoods[0].about"
+          ]
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Focused work at Café La Playita",
+          "detail": "Do daily focused work at Café La Playita (WiFi) where town internet is 20 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.bacalar.coworking[0]",
+            "cities.bacalar.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-09-i4",
+          "title": "Lagoon Sailboat Sunset Tour",
+          "detail": "Take the 3h Lagoon Sailboat Sunset Tour, listed at $25 to $45.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.bacalar.experiences[0].name",
+            "cities.bacalar.experiences[0].duration",
+            "cities.bacalar.experiences[0].price_usd"
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Sunrise paddleboard for morning movement",
+          "detail": "Start with Paddleboard Sunrise (flat water, zero waves), 2h, listed at $10 to $20.",
+          "claim_type": "fitness",
+          "source_refs": [
+            "cities.bacalar.experiences[3].name",
+            "cities.bacalar.experiences[3].duration",
+            "cities.bacalar.experiences[3].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Midday focused work",
+          "detail": "Work from hostels where connectivity is described as Most hostels: 15-25 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.bacalar.coworking[2]"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Cenote Azul Swim & Snorkel",
+          "detail": "Afternoon Cenote Azul Swim & Snorkel, 3h, listed at $5 to $15.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.bacalar.experiences[1].name",
+            "cities.bacalar.experiences[1].duration",
+            "cities.bacalar.experiences[1].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-10-i4",
+          "title": "Keep evening open",
+          "detail": "Keep the evening unscheduled to stay balanced.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Monthly cost context",
+          "detail": "Bacalar monthly cost is $1100.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.bacalar.monthly_cost_usd"
+          ]
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Fuerte San Felipe Fort History Tour",
+          "detail": "Visit Fuerte San Felipe Fort History Tour, 2h, listed at $3 to $8.",
+          "claim_type": "cost",
+          "source_refs": [
+            "cities.bacalar.experiences[4].name",
+            "cities.bacalar.experiences[4].duration",
+            "cities.bacalar.experiences[4].price_usd"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Getting around town",
+          "detail": "Get around on foot and by bike: Walkable centre, bikes everywhere, cheap taxis and colectivos. No car needed in town.",
+          "claim_type": "transit",
+          "source_refs": [
+            "cities.bacalar.getting_around"
+          ]
+        },
+        {
+          "id": "2026-11-11-i4",
+          "title": "Depart",
+          "detail": "Leave the final day light for packing and departure.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "exact_number_flags": [],
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 12,
+    "supported": 12,
+    "unsupported": 0,
+    "unverifiable": 0,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:11.221Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:21.043Z",
+      "summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:05:21.043Z",
+      "summary": {
+        "checked": 12,
+        "supported": 12,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      }
+    }
+  ]
+}

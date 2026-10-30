@@ -1,0 +1,150 @@
+{
+  "plan_id": "plan-lisbon-2026-11-09",
+  "destination_id": "lisbon",
+  "days": [
+    {
+      "date": "2026-11-09",
+      "items": [
+        {
+          "id": "2026-11-09-i1",
+          "title": "Focused work at Second Home Lisboa",
+          "detail": "Base focused work at Second Home Lisboa from the city coworking list where city internet is listed as 90 Mbps.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.lisbon.coworking[0]",
+            "cities.lisbon.internet_mbps"
+          ]
+        },
+        {
+          "id": "2026-11-09-i2",
+          "title": "Time Out Market Food Tour",
+          "detail": "Join the Time Out Market Food Tour listed as a 2h food experience.",
+          "claim_type": "food",
+          "source_refs": [
+            "cities.lisbon.experiences[4].name",
+            "cities.lisbon.experiences[4].duration",
+            "cities.lisbon.experiences[4].category"
+          ]
+        },
+        {
+          "id": "2026-11-09-i3",
+          "title": "Keep the first day balanced",
+          "detail": "Keep pacing light to settle in and adjust.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    },
+    {
+      "date": "2026-11-10",
+      "items": [
+        {
+          "id": "2026-11-10-i1",
+          "title": "Morning work at Heden Cowork",
+          "detail": "Use Heden Cowork from the city coworking list for focused work.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.lisbon.coworking[2]"
+          ]
+        },
+        {
+          "id": "2026-11-10-i2",
+          "title": "Cascais Coastal Day Trip",
+          "detail": "Take the Cascais Coastal Day Trip listed as a half day nature experience.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.lisbon.experiences[5].name",
+            "cities.lisbon.experiences[5].duration",
+            "cities.lisbon.experiences[5].category"
+          ]
+        },
+        {
+          "id": "2026-11-10-i3",
+          "title": "Morning movement window",
+          "detail": "Leave time for light morning movement near your base.",
+          "claim_type": "general",
+          "source_refs": []
+        }
+      ]
+    },
+    {
+      "date": "2026-11-11",
+      "items": [
+        {
+          "id": "2026-11-11-i1",
+          "title": "Focused work at LX Factory",
+          "detail": "Use LX Factory from the city coworking list for focused work.",
+          "claim_type": "cowork",
+          "source_refs": [
+            "cities.lisbon.coworking[1]"
+          ]
+        },
+        {
+          "id": "2026-11-11-i2",
+          "title": "Explore Alfama",
+          "detail": "Walk Alfama, described as Lisbon's oldest quarter of steep alleys, viewpoints and fado houses.",
+          "claim_type": "place",
+          "source_refs": [
+            "cities.lisbon.neighbourhoods[4].name",
+            "cities.lisbon.neighbourhoods[4].about"
+          ]
+        },
+        {
+          "id": "2026-11-11-i3",
+          "title": "Wine and Petiscos Tasting Tour",
+          "detail": "Join the Wine and Petiscos Tasting Tour listed as a 2.5h food experience.",
+          "claim_type": "food",
+          "source_refs": [
+            "cities.lisbon.experiences[3].name",
+            "cities.lisbon.experiences[3].duration",
+            "cities.lisbon.experiences[3].category"
+          ]
+        }
+      ]
+    }
+  ],
+  "state": "published",
+  "exact_number_flags": [],
+  "dropped": [],
+  "verifier_summary": {
+    "checked": 9,
+    "supported": 9,
+    "unsupported": 0,
+    "unverifiable": 0,
+    "dropped": 0
+  },
+  "log": [
+    {
+      "event": "plan_created",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:14.022Z",
+      "by": "muse-spark-1.3"
+    },
+    {
+      "event": "verified",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:19.294Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0
+      }
+    },
+    {
+      "event": "published",
+      "planner_model": "muse-spark-1.3",
+      "verifier_model": "meta-models/muse-spark-open",
+      "timestamp": "2026-10-29T23:06:19.295Z",
+      "summary": {
+        "checked": 9,
+        "supported": 9,
+        "unsupported": 0,
+        "unverifiable": 0,
+        "dropped": 0
+      }
+    }
+  ]
+}
