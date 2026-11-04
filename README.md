@@ -90,7 +90,7 @@ and the plan JSON in `eval/plans/`.
 
 | Role | Model | Served via |
 |---|---|---|
-| Planner | Muse Spark | Meta Model API |
+| Planner | Muse Spark (`muse-spark-1.3`) | Meta Model API |
 | Verifier | Muse Spark Open (`meta-models/muse-spark-open`) | Baseten |
 | Card artwork | Muse Image (`muse-image-1.0`) | Meta Model API |
 | Exact-number check | No model — deterministic code | In-process |
@@ -127,6 +127,19 @@ model is used.
 - [x] Oct 29 Muse-only additions: Stay Rules snapshot edition,
   experience Add to trip, Locate me, `/how-it-works` build catalog,
   CSP headers + `security.txt`, `/health`
+- [x] Nov 4 card & trip-tools refresh: icon-labelled facts and
+  record-earned badges on every card; always-visible **Add to trip**,
+  **Save**, **Note** and **Details** buttons (Outgrid's own labels);
+  **Add experience to trip** on experiences; saves/notes kept in the
+  browser, with a place's note passed to the planner as an interest
+- [x] Nov 4 `/visa` — Visa & stay, by passport: the visitor's passport
+  frames each country's long-stay route from the records; tourist
+  entry per passport is not in the snapshot and is stated as a gap,
+  never guessed. Same snapshot panel appears on the plan page, keyed
+  to the intake nationality
+- [x] Nov 4 welcome pop-up: a first-visit card explaining the demo
+  (real records, two Muse models checking each other, nothing
+  invented), shown once per browser
 
 ## Pre-existing Outgrid (not part of the judged build)
 

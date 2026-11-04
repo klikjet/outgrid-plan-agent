@@ -14,7 +14,7 @@ import { getCity, getCountry, loadData } from "./records.js";
 import { loadConfig, liveModelsReady } from "./config.js";
 import { runPipeline } from "./pipeline.js";
 import { callModelJson } from "./model-client.js";
-import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, renderSearchResults, renderStayRules, renderEvidence, renderHowItWorks, esc } from "./render.js";
+import { renderBrowse, renderIntake, renderPlan, renderDestination, renderCountry, renderSearchResults, renderStayRules, renderVisa, renderEvidence, renderHowItWorks, esc } from "./render.js";
 import { interpretQuery, applyInterpreted, describeFilters, keywordFallback } from "./search.js";
 
 const PORT = process.env.PORT || 3000;
@@ -84,6 +84,9 @@ const server = createServer(async (req, res) => {
     }
     if (url.pathname === "/stay-rules") {
       return send(res, renderStayRules());
+    }
+    if (url.pathname === "/visa") {
+      return send(res, renderVisa());
     }
     if (url.pathname === "/how-it-works") {
       return send(res, renderHowItWorks());
@@ -172,9 +175,14 @@ const server = createServer(async (req, res) => {
       return send(res, renderCountry(decodeURIComponent(url.pathname.slice("/country/".length))));
     }
     if (url.pathname === "/plan") {
+      // A saved place's note (kept in the visitor's browser) can ride
+      // along as an interest, so the planner sees what the traveler
+      // jotted down about the place.
+      const interest = url.searchParams.get("interest") || url.searchParams.get("interests") || "";
+      const note = url.searchParams.get("note") || "";
       return send(res, renderIntake(
         url.searchParams.get("destination") || "bacalar",
-        url.searchParams.get("interest") || url.searchParams.get("interests") || ""
+        [interest, note].filter(Boolean).join(", ")
       ));
     }
     if (url.pathname === "/plan/view") {
@@ -210,7 +218,7 @@ const server = createServer(async (req, res) => {
             city,
             country: getCountry(city.country_id),
           });
-          return send(res, renderPlan(plan, city));
+          return send(res, renderPlan(plan, city, { nationality: intake.nationality }));
         } catch (err) {
           // The live models could not be reached (e.g. the provider
           // cannot see the model from this network). Never show a raw
@@ -220,11 +228,11 @@ const server = createServer(async (req, res) => {
           console.error("Live plan failed, serving labelled preview:", err.message);
           const plan = buildStubPlan(intake);
           plan.preview_unchecked = true;
-          return send(res, renderPlan(plan, city));
+          return send(res, renderPlan(plan, city, { nationality: intake.nationality }));
         }
       }
       const plan = buildStubPlan(intake);
-      return send(res, renderPlan(plan, city));
+      return send(res, renderPlan(plan, city, { nationality: intake.nationality }));
     }
     if (url.pathname === "/health/models") {
       // Diagnostic: ping each model provider with the server-side keys
