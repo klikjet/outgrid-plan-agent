@@ -427,15 +427,28 @@ function setTrip(t) { try { localStorage.setItem("og-trip", JSON.stringify(t)); 
 function tripHasCity(id) { return getTrip().some((i) => i.city === id); }
 function toggleTripCity(id) {
   let t = getTrip();
-  t = t.some((i) => i.city === id) ? t.filter((i) => i.city !== id) : [...t, { city: id, exp: [] }];
+  t = t.some((i) => i.city === id) ? t.filter((i) => i.city !== id) : [...t, { city: id, exp: [], start: "", end: "" }];
   setTrip(t);
 }
 function toggleTripExp(cityId, name) {
   const t = getTrip();
   let item = t.find((i) => i.city === cityId);
-  if (!item) { item = { city: cityId, exp: [] }; t.push(item); }
+  if (!item) { item = { city: cityId, exp: [], start: "", end: "" }; t.push(item); }
   item.exp = (item.exp || []).includes(name) ? item.exp.filter((x) => x !== name) : [...(item.exp || []), name];
   setTrip(t);
+}
+function setTripDates(cityId, start, end) {
+  const t = getTrip();
+  let item = t.find((i) => i.city === cityId);
+  if (!item) { item = { city: cityId, exp: [], start: "", end: "" }; t.push(item); }
+  item.start = start || ""; item.end = end || "";
+  setTrip(t);
+}
+function fmtDates(item) {
+  if (!item || !item.start) return "";
+  const f = (v) => { const d = new Date(v + "T12:00:00"); return isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
+  const a = f(item.start), b = item.end ? f(item.end) : "";
+  return a ? " · " + a + (b ? "–" + b : "") : "";
 }
 function paintTripBtn(b) {
   if (!b.dataset.orig) b.dataset.orig = b.innerHTML;
@@ -458,13 +471,15 @@ function paintTrip(root) {
   const expCount = t.reduce((n, i) => n + ((i.exp || []).length), 0);
   if (!t.length) { bar.classList.remove("show"); return; }
   const label = document.getElementById("trip-label");
-  if (label) label.textContent = "Your trip: " + t.map((i) => DATA.cities[i.city].name).join(" · ") + (expCount ? " + " + expCount + " experience" + (expCount > 1 ? "s" : "") : "");
+  if (label) label.textContent = "Your trip: " + t.map((i) => DATA.cities[i.city].name + fmtDates(i)).join(" · ") + (expCount ? " + " + expCount + " experience" + (expCount > 1 ? "s" : "") : "");
   const build = document.getElementById("trip-build");
   if (build) {
     const first = t[0];
     const u = new URLSearchParams({ destination: first.city });
     const exps = [...new Set(t.flatMap((i) => i.exp || []))];
     if (exps.length) u.set("interest", exps.join(", "));
+    if (first.start) u.set("start", first.start);
+    if (first.end) u.set("end", first.end);
     const note = noteFor(first.city);
     if (note) u.set("note", note);
     build.setAttribute("href", "/plan?" + u.toString());
@@ -528,6 +543,21 @@ function wireModal() {
   box.querySelectorAll("[data-open-city]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-open-city")); });
   box.querySelectorAll("[data-open-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-open-country")); });
   bindCards(box);
+  // Trip dates in the pop-up: prefill from the trip, save on change.
+  const tripBtn = box.querySelector("[data-addtrip]");
+  const dateIns = box.querySelectorAll("[data-tripdate]");
+  if (tripBtn && dateIns.length) {
+    const cid = tripBtn.getAttribute("data-addtrip");
+    const item = getTrip().find((i) => i.city === cid);
+    dateIns.forEach((inp) => {
+      if (item) inp.value = (inp.getAttribute("data-tripdate") === "start" ? item.start : item.end) || "";
+      inp.onchange = () => {
+        const s = box.querySelector('[data-tripdate="start"]');
+        const e = box.querySelector('[data-tripdate="end"]');
+        setTripDates(cid, s ? s.value : "", e ? e.value : "");
+      };
+    });
+  }
   box.querySelectorAll("[data-savenote]").forEach((b) => {
     b.onclick = () => {
       const ta = box.querySelector("#note-text");
@@ -560,6 +590,10 @@ function openModal(kind, id, focus) {
       '<div>' + (co.name || "Country") + ' Nomad Score<b>' + (co.nomad_score ?? "—") + '</b></div>' +
       '<div>Stay on record<b>' + (co.visa_duration || "—") + '</b></div></div>' +
       '<div class="stats" style="margin-top:0;">' + decide.join("") + '</div>' +
+      '<div class="msec" id="trip-anchor"><h4>Add to your trip — dates &amp; picks</h4>' +
+      '<div class="toolsrow"><label style="font-size:13px;color:var(--line);">From<br><input type="date" data-tripdate="start" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label>' +
+      '<label style="font-size:13px;color:var(--line);">To<br><input type="date" data-tripdate="end" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label></div>' +
+      '<p class="note">Pick dates here and experiences from the list below — everything is saved to your trip, and <strong>Build my plan</strong> (in the bar at the bottom) plans with those dates and picks. Choosing dates or an experience adds ' + c.name + ' to your trip.</p></div>' +
       (c.best_season ? '<div class="msec"><h4>Nomad essentials</h4><div class="hoods">' +
         [["Best season", c.best_season], ["From Miami", c.flight_from_miami], ["Time zone", c.time_zone], ["SIM and data", c.sim_cost], ["English", c.english_level], ["Getting around", c.getting_around], ["The scene", c.scene]]
           .filter((pair) => pair[1]).map((pair) => '<div class="hood"><b>' + pair[0] + '</b>' + pair[1] + '</div>').join("") +
@@ -598,6 +632,7 @@ function openModal(kind, id, focus) {
   wireModal();
   paintPlanLinks(box);
   if (focus === "note") { const ta = box.querySelector("#note-text"); if (ta) { ta.scrollIntoView({ block: "center" }); ta.focus(); } }
+  if (focus === "trip") { const el = box.querySelector("#trip-anchor"); if (el) el.scrollIntoView({ block: "center" }); }
 }
 function bindCards(root) {
   root.querySelectorAll("[data-save]").forEach((b) => {
@@ -612,7 +647,18 @@ function bindCards(root) {
   });
   root.querySelectorAll("[data-modal]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-modal")); });
   root.querySelectorAll("[data-modal-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-modal-country")); });
-  root.querySelectorAll("[data-addtrip]").forEach((b) => { paintTripBtn(b); b.onclick = () => toggleTripCity(b.getAttribute("data-addtrip")); });
+  root.querySelectorAll("[data-addtrip]").forEach((b) => {
+    paintTripBtn(b);
+    b.onclick = () => {
+      const id = b.getAttribute("data-addtrip");
+      // Outside the pop-up, adding opens the place's card first — it asks
+      // for dates and offers the experiences to pick (add-to-cart with
+      // options). Inside the pop-up, or when already in the trip, the
+      // button toggles directly.
+      if (!tripHasCity(id) && !b.closest("#modal-box") && document.getElementById("modal-box")) openModal("city", id, "trip");
+      else toggleTripCity(id);
+    };
+  });
   root.querySelectorAll("[data-addexp]").forEach((b) => { paintExpBtn(b); b.onclick = () => toggleTripExp(b.getAttribute("data-addexp"), b.getAttribute("data-exp")); });
 }
 // --- Place autocomplete: every city and country in the records,
@@ -1116,7 +1162,7 @@ export function renderHowItWorks() {
     <section class="panel" style="margin:14px 0;"><h3>Features adapted from the production catalog</h3>
       <ul class="clean">
         <li><strong>Experience cards:</strong> priced experiences from the record, with <strong>Add experience to trip</strong>. Adding one puts it in your trip (below) — no fake booking partner and no payment.</li>
-        <li><strong>Trip-first planning (Nov 4):</strong> like the live Outgrid, <strong>Build my plan</strong> only appears once your trip holds at least one destination or experience. Add places from any card, pop-up, or destination page; the trip bar at the bottom of the screen collects them, and Build carries the first place, its experiences, and your note for it into the planner.</li>
+        <li><strong>Trip-first planning (Nov 4):</strong> like the live Outgrid, <strong>Build my plan</strong> only appears once your trip holds at least one destination or experience. Clicking Add to trip opens the place's card first — it asks for your dates and lists the experiences to pick, add-to-cart style. The trip bar at the bottom collects everything, Build carries the first place with its dates, experiences, and your note into the planner, and the plan page shows a “Your trip — what you picked” summary so every choice is visible before you build.</li>
         <li><strong>Maps (Nov 4):</strong> destination and plan pages carry a real map panel — OpenStreetMap tiles centred on the coordinates held in the place's own record (the same coordinates Locate me uses), drawn with plain tile images so it works inside the demo's strict security policy.</li>
         <li><strong>Locate me:</strong> the browser finds the nearest of the 16 snapshot places using coordinates already in the records. The location is used in the browser only and is not stored.</li>
         <li><strong>Stay Rules:</strong> a five-country snapshot edition. It publishes only stay and tax fields present in the records, all flagged unverified, with the not-advice disclaimer.</li>
@@ -1141,7 +1187,7 @@ export function renderHowItWorks() {
   return page("How this demo works", body, modalShell());
 }
 
-export function renderIntake(destinationId, initialInterests = "") {
+export function renderIntake(destinationId, initialInterests = "", tripDates = {}) {
   const { cities } = loadData();
   const options = cities
     .map((c) => `<option value="${esc(c.id)}" ${c.id === destinationId ? "selected" : ""}>${esc(c.name)}</option>`)
@@ -1149,6 +1195,7 @@ export function renderIntake(destinationId, initialInterests = "") {
   const body = `<main>
     <h2>Plan your stay</h2>
     <p class="note" id="intake-intro">Tell the planner what you need. The plan is then checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
+    <div id="trip-summary" style="display:none;max-width:560px;"></div>
     <div id="trip-gate" class="panel" style="display:none;max-width:560px;">
       <h3 style="margin-top:0;">Start with a place or an experience</h3>
       <p style="line-height:1.6;">Build my plan appears once your trip has something in it — the same flow as the live Outgrid. Add a destination or an experience to your trip first, then come back: the planner builds around what's in your trip.</p>
@@ -1156,8 +1203,8 @@ export function renderIntake(destinationId, initialInterests = "") {
     </div>
     <form class="intake" id="intake-form" method="get" action="/plan/view">
       <label>Destination <select name="destination_id">${options}</select></label>
-      <label>Start date <input type="date" name="start_date" value="2026-11-09" required></label>
-      <label>End date <input type="date" name="end_date" value="2026-11-11" required></label>
+      <label>Start date <input type="date" name="start_date" value="${esc(tripDates.start || "2026-11-09")}" required></label>
+      <label>End date <input type="date" name="end_date" value="${esc(tripDates.end || "2026-11-11")}" required></label>
       <label>Travelers <input type="number" name="travelers" value="1" min="1"></label>
       <label>Nationality (stay-rules context) <input name="nationality" value="US"></label>
       <label>Budget range (USD/month) <input name="budget_range" value="1000-1500"></label>
@@ -1184,6 +1231,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("intake-form");
   const veil = document.getElementById("build-veil");
   if (!form || !veil) return;
+  // Your trip — everything picked so far, shown on this page.
+  const summary = document.getElementById("trip-summary");
+  const nameOf = (id) => { const o = form.querySelector('select[name="destination_id"] option[value="' + id + '"]'); return o ? o.textContent : id; };
+  const fmtD = (v) => { const d = new Date(v + "T12:00:00"); return isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
+  const renderSummary = () => {
+    if (!summary) return;
+    let trip = [];
+    try { trip = JSON.parse(localStorage.getItem("og-trip") || "[]"); } catch {}
+    trip = (trip || []).filter((i) => i && i.city);
+    if (!trip.length) { summary.style.display = "none"; summary.innerHTML = ""; return; }
+    let notes = {};
+    try { notes = JSON.parse(localStorage.getItem("og-notes") || "{}"); } catch {}
+    summary.innerHTML = '<div class="panel" style="margin-bottom:16px;"><h3 style="margin-top:0;">Your trip — what you picked</h3>' +
+      trip.map((i) => {
+        const dates = i.start ? " · " + fmtD(i.start) + (i.end ? "–" + fmtD(i.end) : "") : "";
+        const exps = (i.exp || []).length ? '<br><span class="note">Experiences: ' + i.exp.join(", ") + "</span>" : "";
+        const nt = notes[i.city] ? '<br><span class="note">Your note: ' + notes[i.city] + "</span>" : "";
+        return '<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #e5ddc9;"><div><strong>' + nameOf(i.city) + "</strong>" + dates + exps + nt + '</div><button class="mini" type="button" data-trip-remove="' + i.city + '">Remove</button></div>';
+      }).join("") +
+      '<p class="note" style="margin-bottom:0;">The plan below is built for the selected destination, using these dates and picks — they are already filled into the form.</p></div>';
+    summary.style.display = "block";
+    summary.querySelectorAll("[data-trip-remove]").forEach((b) => {
+      b.onclick = () => {
+        let t = [];
+        try { t = JSON.parse(localStorage.getItem("og-trip") || "[]"); } catch {}
+        t = (t || []).filter((i) => i.city !== b.getAttribute("data-trip-remove"));
+        try { localStorage.setItem("og-trip", JSON.stringify(t)); } catch {}
+        if (!t.length && !new URLSearchParams(location.search).get("destination")) { location.href = "/plan"; return; }
+        renderSummary();
+      };
+    });
+  };
+  renderSummary();
   // Trip gate: with no destination chosen and an empty trip, Build my plan
   // stays hidden behind a "start with a place" panel — the live Outgrid flow.
   const gate = document.getElementById("trip-gate");
@@ -1202,6 +1282,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const exps = (first.exp || []).join(", ");
       const interestInput = form.querySelector('input[name="interests"]');
       if (interestInput && exps && !interestInput.value) interestInput.value = exps;
+      const sd = form.querySelector('input[name="start_date"]');
+      const ed = form.querySelector('input[name="end_date"]');
+      if (sd && first.start) sd.value = first.start;
+      if (ed && first.end) ed.value = first.end;
     }
   }
   const stage = document.getElementById("build-stage");
