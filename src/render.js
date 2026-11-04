@@ -21,6 +21,7 @@ const CSS = `
   body { font-family: Georgia, 'Times New Roman', serif; margin:0; background:var(--cream); color:var(--ink); }
   header.top { background:var(--ink); color:var(--cream); padding:14px 4%; display:flex; justify-content:space-between; align-items:center; position:relative; z-index:50; }
   header.top .brand { font-size:21px; font-weight:bold; letter-spacing:.02em; }
+  header.top a.brand { color:var(--cream); text-decoration:none; cursor:pointer; }
   header.top .brand span { color:var(--gold); }
   header.top nav a { color:var(--cream); margin-left:16px; font-size:14px; text-decoration:none; opacity:.92; }
   main { max-width:1180px; margin:0 auto; padding:22px 16px 60px; }
@@ -249,7 +250,7 @@ function page(title, body, extra = "") {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)} · Outgrid</title><style>${CSS}</style></head>
 <body>
-<header class="top"><div class="brand">Out<span>grid</span></div><nav><a href="/">Destinations</a><a href="/#countries">Countries</a><a href="/visa">Visa &amp; stay</a><a href="/stay-rules">Stay Rules</a><a href="/plan">Plan a stay</a><a href="/evidence">Evidence</a><a href="/how-it-works">How it works</a></nav></header>
+<header class="top"><a class="brand" href="/" aria-label="Outgrid — home">Out<span>grid</span></a><nav><a href="/">Destinations</a><a href="/#countries">Countries</a><a href="/visa">Visa &amp; stay</a><a href="/stay-rules">Stay Rules</a><a href="/plan">Plan a stay</a><a href="/evidence">Evidence</a><a href="/how-it-works">How it works</a></nav></header>
 ${body}
 <footer>Outgrid Plan Agent — a hackathon demo recreating outgrid.io from an exported data snapshot. Demo only: no live data, no bookings, and the demo stores no account or intake data. Card artwork generated with Muse Image (Meta Model API) for this demo. Built for the Meta Global AI Developer Hackathon, Oct 27 – Nov 4, 2026.</footer>
 ${extra}
