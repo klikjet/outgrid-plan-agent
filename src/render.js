@@ -181,6 +181,25 @@ const CSS = `
   /* Visa & stay page (Nov 4) */
   .passportbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; background:var(--card); border:1px solid #ddd5c3; border-radius:12px; padding:14px 18px; margin:14px 0; }
   .passportbar select { font:inherit; font-size:15px; padding:8px 10px; border:1px solid #c9c0aa; border-radius:8px; background:#fff; }
+  /* Sidebar browse layout (Nov 4) */
+  .browse-wrap { display:grid; grid-template-columns:234px 1fr; gap:22px; margin-top:44px; align-items:start; }
+  .sidebar { position:sticky; top:14px; display:grid; gap:14px; }
+  .side-panel { background:var(--card); border:1px solid #ddd5c3; border-radius:12px; padding:14px 16px; }
+  .side-panel h3 { margin:0 0 10px; font-size:16px; }
+  .side-link { display:block; padding:7px 8px; border-radius:8px; text-decoration:none; font-size:14.5px; }
+  .side-link:hover { background:#eef2f5; }
+  .side-panel label { display:grid; gap:4px; font-size:13px; color:var(--line); margin-bottom:10px; }
+  .side-panel input, .side-panel select { font:inherit; font-size:14.5px; padding:7px 8px; border:1px solid #c9c0aa; border-radius:8px; color:var(--ink); background:#fff; width:100%; }
+  .side-clear { display:inline-block; margin-top:8px; font-size:13px; }
+  @media (max-width:840px){ .browse-wrap{grid-template-columns:1fr;} .sidebar{position:static;} }
+  /* Plan-building progress overlay (Nov 4) */
+  .buildveil { position:fixed; inset:0; background:rgba(27,40,53,.78); z-index:500; display:none; align-items:center; justify-content:center; padding:16px; }
+  .buildveil.open { display:flex; }
+  .buildcard { width:min(520px,94vw); background:var(--card); border-radius:14px; padding:26px 28px; box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .spinner { width:34px; height:34px; border-radius:50%; border:4px solid #ddd5c3; border-top-color:var(--gold); animation:spin .9s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .buildbar { height:8px; background:#e7e0cd; border-radius:99px; overflow:hidden; margin:16px 0 8px; }
+  .buildbar i { display:block; height:100%; width:8%; background:var(--gold); border-radius:99px; transition:width 55s linear; }
 `;
 
 const REGION_ART = {
@@ -694,25 +713,60 @@ export function renderBrowse(params = {}) {
     ${rail("Beach & island bases", beach.map((c) => cityCard(c, byCountry(c))).join(""))}
     ${rail("Under $1,300 a month", budget.map((c) => cityCard(c, byCountry(c))).join(""))}
     ${rail("Fastest internet", fast.map((c) => cityCard(c, byCountry(c))).join(""))}
-    <h2 id="countries" style="margin-top:44px;">Browse everything</h2>
-    <div class="filters">
-      ${bands.map(([v, label]) => `<a href="/?band=${v}" class="${(params.band || "") === v ? "on" : ""}">Score ${label}</a>`).join("")}
-      <span class="note">·</span>
-      ${types.map((t) => `<a href="/?type=${esc(t)}" class="${(params.type || "") === t ? "on" : ""}">${t === "" ? "All types" : esc(t)}</a>`).join("")}
-      <form method="get" action="/" style="display:inline;">
-        <select name="sort" onchange="this.form.submit()">
-          ${[["recommended", "Sort: Recommended"], ["cost_low", "Sort: Lowest cost"], ["safety", "Sort: Safest"], ["internet", "Sort: Fastest internet"], ["score", "Sort: Nomad Score"]].map(([v, l]) => `<option value="${v}" ${sort === v ? "selected" : ""}>${l}</option>`).join("")}
-        </select>
-      </form>
-      ${hasFilter ? `<a href="/">Clear filters</a>` : ""}
+    <div class="browse-wrap" id="countries">
+      <aside class="sidebar">
+        <div class="side-panel">
+          <h3>Explore</h3>
+          <a class="side-link" href="/">All destinations</a>
+          <a class="side-link" href="/#countries">Countries &amp; cities</a>
+          <a class="side-link" href="/visa">Visa &amp; stay, by passport</a>
+          <a class="side-link" href="/stay-rules">Stay Rules</a>
+          <a class="side-link" href="/plan">Plan a stay</a>
+          <a class="side-link" href="/evidence">Evidence</a>
+          <a class="side-link" href="/how-it-works">How it works</a>
+        </div>
+        <div class="side-panel">
+          <h3>Filter places</h3>
+          <form method="get" action="/">
+            <label>Max budget (USD/month)
+              <input type="number" name="budget" min="0" placeholder="e.g. 1500" value="${esc(params.maxBudget || "")}">
+            </label>
+            <label>Nomad Score
+              <select name="band">
+                ${bands.map(([v, label]) => `<option value="${v}" ${(params.band || "") === v ? "selected" : ""}>${label === "All scores" ? "All scores" : `Score ${label}`}</option>`).join("")}
+              </select>
+            </label>
+            <label>Place type
+              <select name="type">
+                ${types.map((t) => `<option value="${esc(t)}" ${(params.type || "") === t ? "selected" : ""}>${t === "" ? "All types" : esc(t)}</option>`).join("")}
+              </select>
+            </label>
+            <label>Sort by
+              <select name="sort">
+                ${[["recommended", "Recommended"], ["cost_low", "Lowest cost"], ["safety", "Safest"], ["internet", "Fastest internet"], ["score", "Nomad Score"]].map(([v, l]) => `<option value="${v}" ${sort === v ? "selected" : ""}>${l}</option>`).join("")}
+              </select>
+            </label>
+            <button class="btn dark small" type="submit">Apply filters</button>
+            ${hasFilter ? `<a class="side-clear" href="/">Clear all filters</a>` : ""}
+          </form>
+          <p class="note" style="margin-bottom:0;">The same filters as the classic Outgrid browse: score band, place type, budget, sort.</p>
+        </div>
+        <div class="side-panel">
+          <h3>Your trip tools</h3>
+          <p class="note" style="margin:0;">Save places from any card and they collect in <strong>My List</strong> at the top of this page. Jot a note on a place and it travels into the planner when you add the place to a trip.</p>
+        </div>
+      </aside>
+      <div class="browse-main">
+        <h2 style="margin-top:2px;">Browse everything</h2>
+        ${hasFilter ? `<p class="note">Showing ${cities.length} cities and ${shownCountries.length} countries matching your filters.</p>` : ""}
+        <h3 style="margin:18px 0 10px;">Countries</h3>
+        <div class="grid">${shownCountries.map(countryCard).join("") || '<p class="note">No countries in that score band in the demo data.</p>'}</div>
+        <h3 style="margin:26px 0 10px;">Cities</h3>
+        <div class="grid">${cities.map((c) => cityCard(c, byCountry(c))).join("") || '<p class="note">No cities match — try a higher budget.</p>'}</div>
+        <h2>Plan your route</h2>
+        <p class="note">On the live site you tap pins on a map and tune stays and budget as your route comes together. In this demo, pick a city and hit “Add to trip” — the planner builds the day-by-day plan and the checker verifies every claim in it.</p>
+      </div>
     </div>
-    ${hasFilter ? `<p class="note">Showing ${cities.length} cities and ${shownCountries.length} countries matching your filters.</p>` : ""}
-    <h3 style="margin:18px 0 10px;">Countries</h3>
-    <div class="grid">${shownCountries.map(countryCard).join("") || '<p class="note">No countries in that score band in the demo data.</p>'}</div>
-    <h3 style="margin:26px 0 10px;">Cities</h3>
-    <div class="grid">${cities.map((c) => cityCard(c, byCountry(c))).join("") || '<p class="note">No cities match — try a higher budget.</p>'}</div>
-    <h2>Plan your route</h2>
-    <p class="note">On the live site you tap pins on a map and tune stays and budget as your route comes together. In this demo, pick a city and hit “Plan” — the planner builds the day-by-day plan and the checker verifies every claim in it.</p>
   </main>`;
   return page("Find Your Perfect Next Base", body, modalShell());
 }
@@ -998,7 +1052,7 @@ export function renderIntake(destinationId, initialInterests = "") {
   const body = `<main>
     <h2>Plan your stay</h2>
     <p class="note">Tell the planner what you need. The plan is then checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
-    <form class="intake" method="get" action="/plan/view">
+    <form class="intake" id="intake-form" method="get" action="/plan/view">
       <label>Destination <select name="destination_id">${options}</select></label>
       <label>Start date <input type="date" name="start_date" value="2026-11-09" required></label>
       <label>End date <input type="date" name="end_date" value="2026-11-11" required></label>
@@ -1012,8 +1066,36 @@ export function renderIntake(destinationId, initialInterests = "") {
       <label>Fitness needs <input name="fitness_needs" value="Morning runs"></label>
       <button class="btn dark" type="submit">Build my plan</button>
     </form>
+    <p class="note" style="max-width:560px;">Building takes about a minute: one model writes the plan, a second model checks every claim in it. You'll see the stages while you wait — the plan only appears once the check has run.</p>
+    <div class="buildveil" id="build-veil" role="dialog" aria-modal="true">
+      <div class="buildcard">
+        <div class="spinner"></div>
+        <h3 style="margin:14px 0 6px;">Building your <span id="build-dest">plan</span></h3>
+        <p id="build-stage" style="line-height:1.55;margin:0;">Muse Spark is drafting your plan from the destination's records…</p>
+        <div class="buildbar"><i id="build-bar-fill"></i></div>
+        <p class="note">Two models are working: one writes, one checks. Nothing publishes until the check finishes — that's the point of the demo, and why it takes about a minute.</p>
+      </div>
+    </div>
   </main>`;
-  return page("Plan your stay", body);
+  const script = `<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("intake-form");
+  const veil = document.getElementById("build-veil");
+  if (!form || !veil) return;
+  const stage = document.getElementById("build-stage");
+  const bar = document.getElementById("build-bar-fill");
+  const dest = document.getElementById("build-dest");
+  form.addEventListener("submit", () => {
+    const sel = form.querySelector('select[name="destination_id"]');
+    if (dest && sel) dest.textContent = sel.options[sel.selectedIndex].text + " plan";
+    veil.classList.add("open");
+    requestAnimationFrame(() => { if (bar) bar.style.width = "88%"; });
+    setTimeout(() => { if (stage) stage.textContent = "Muse Spark Open, served via Baseten, is now checking every claim in the draft against the destination's records."; }, 14000);
+    setTimeout(() => { if (stage) stage.textContent = "Still checking — anything the checker can't verify gets flagged or dropped, never invented. Plans usually take about a minute."; }, 38000);
+  });
+});
+</script>`;
+  return page("Plan your stay", body, script);
 }
 
 export function renderPlan(plan, city, options = {}) {
