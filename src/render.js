@@ -200,6 +200,15 @@ const CSS = `
   @keyframes spin { to { transform:rotate(360deg); } }
   .buildbar { height:8px; background:#e7e0cd; border-radius:99px; overflow:hidden; margin:16px 0 8px; }
   .buildbar i { display:block; height:100%; width:8%; background:var(--gold); border-radius:99px; transition:width 55s linear; }
+  /* Trip bar + in-trip states + map (Nov 4) */
+  #trip-bar { position:fixed; left:50%; bottom:18px; transform:translateX(-50%) translateY(160%); transition:transform .3s ease; z-index:300; display:flex; align-items:center; gap:12px; background:var(--ink); color:var(--cream); padding:10px 12px 10px 18px; border-radius:99px; box-shadow:0 14px 40px rgba(0,0,0,.4); max-width:94vw; }
+  #trip-bar.show { transform:translateX(-50%) translateY(0); }
+  #trip-label { font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #trip-clear { background:none; border:none; color:var(--cream); text-decoration:underline; cursor:pointer; font:inherit; font-size:13px; padding:4px 6px; }
+  .in-trip { background:#e9f2e2 !important; border-color:#93b184 !important; color:#2f4a22 !important; }
+  .mapbox { position:relative; overflow:hidden; border-radius:10px; background:#dfe7ea; }
+  .maplayer { position:absolute; width:1152px; height:640px; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .mapmarker { position:absolute; left:50%; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:50%; background:var(--gold); border:3px solid var(--ink); box-shadow:0 2px 10px rgba(0,0,0,.45); z-index:2; }
 `;
 
 const REGION_ART = {
@@ -208,6 +217,32 @@ const REGION_ART = {
   Europe: "linear-gradient(120deg,#3d5a80,#5b7ea6 55%,#263646)",
 };
 const FALLBACK_ART = "linear-gradient(120deg,#40586e,#263646)";
+
+// Map panel: OpenStreetMap tiles centred on the city's coordinates AS HELD IN
+// ITS RECORD (lat/lng ship in the snapshot and already power Locate me). No
+// external JS or CSS — plain tile images positioned by the standard
+// slippy-map maths, so it works inside the demo's strict CSP.
+function mapPanel(city, height = 300) {
+  if (typeof city.lat !== "number" || typeof city.lng !== "number") return "";
+  const z = 11, n = 2 ** z;
+  const x = ((city.lng + 180) / 360) * n;
+  const latRad = (city.lat * Math.PI) / 180;
+  const y = ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n;
+  const W = 1152, H = 640, cx = x * 256, cy = y * 256;
+  let tiles = "";
+  for (let tx = Math.floor((cx - W / 2) / 256); tx <= Math.floor((cx + W / 2) / 256); tx++) {
+    for (let ty = Math.floor((cy - H / 2) / 256); ty <= Math.floor((cy + H / 2) / 256); ty++) {
+      if (ty < 0 || ty >= n) continue;
+      const wtx = ((tx % n) + n) % n;
+      tiles += `<img alt="" loading="lazy" src="https://tile.openstreetmap.org/${z}/${wtx}/${ty}.png" style="position:absolute;left:${tx * 256 - (cx - W / 2)}px;top:${ty * 256 - (cy - H / 2)}px;width:256px;height:256px;">`;
+    }
+  }
+  return `<div class="panel" style="margin:14px 0;">
+    <h3 style="margin-top:0;">Where it is</h3>
+    <div class="mapbox" style="height:${height}px;"><div class="maplayer">${tiles}<span class="mapmarker"></span></div></div>
+    <p class="note" style="margin:8px 0 0;">Map tiles © OpenStreetMap contributors, centred on the coordinates in ${esc(city.name)}'s record. Live directions and pins are part of the full site, not this demo.</p>
+  </div>`;
+}
 
 function page(title, body, extra = "") {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -284,7 +319,7 @@ function cityCard(c, country) {
       <p class="mynote" data-note-for="${esc(c.id)}" hidden></p>
     </div>
     <div class="actions">
-      <a class="abtn primary" href="/plan?destination=${esc(c.id)}">${icon("plus")} Add to trip</a>
+      <button class="abtn primary" type="button" data-addtrip="${esc(c.id)}">${icon("plus")} Add to trip</button>
       <button class="abtn" type="button" data-save="${esc(c.id)}">${icon("bookmark")} Save</button>
       <button class="abtn" type="button" data-note="${esc(c.id)}">${icon("note")} Note</button>
       <button class="abtn" type="button" data-modal="${esc(c.id)}">${icon("info")} Details</button>
@@ -383,6 +418,58 @@ function paintPlanLinks(root) {
     } catch {}
   });
 }
+// --- The trip: destinations + experiences the visitor is actually planning
+// with, kept in this browser (og-trip). "Build my plan" exists only while the
+// trip holds at least one place — the trip bar is its home.
+function getTrip() { try { return JSON.parse(localStorage.getItem("og-trip") || "[]"); } catch { return []; } }
+function setTrip(t) { try { localStorage.setItem("og-trip", JSON.stringify(t)); } catch {} paintTrip(document); }
+function tripHasCity(id) { return getTrip().some((i) => i.city === id); }
+function toggleTripCity(id) {
+  let t = getTrip();
+  t = t.some((i) => i.city === id) ? t.filter((i) => i.city !== id) : [...t, { city: id, exp: [] }];
+  setTrip(t);
+}
+function toggleTripExp(cityId, name) {
+  const t = getTrip();
+  let item = t.find((i) => i.city === cityId);
+  if (!item) { item = { city: cityId, exp: [] }; t.push(item); }
+  item.exp = (item.exp || []).includes(name) ? item.exp.filter((x) => x !== name) : [...(item.exp || []), name];
+  setTrip(t);
+}
+function paintTripBtn(b) {
+  if (!b.dataset.orig) b.dataset.orig = b.innerHTML;
+  const on = tripHasCity(b.getAttribute("data-addtrip"));
+  b.classList.toggle("in-trip", on);
+  b.innerHTML = on ? "✓ In your trip" : b.dataset.orig;
+}
+function paintExpBtn(b) {
+  if (!b.dataset.orig) b.dataset.orig = b.innerHTML;
+  const item = getTrip().find((i) => i.city === b.getAttribute("data-addexp"));
+  const on = !!(item && (item.exp || []).includes(b.getAttribute("data-exp")));
+  b.classList.toggle("in-trip", on);
+  b.innerHTML = on ? "✓ Added to trip" : b.dataset.orig;
+}
+function paintTrip(root) {
+  (root || document).querySelectorAll("[data-addtrip]").forEach(paintTripBtn);
+  (root || document).querySelectorAll("[data-addexp]").forEach(paintExpBtn);
+  const bar = document.getElementById("trip-bar"); if (!bar) return;
+  const t = getTrip().filter((i) => DATA.cities[i.city]);
+  const expCount = t.reduce((n, i) => n + ((i.exp || []).length), 0);
+  if (!t.length) { bar.classList.remove("show"); return; }
+  const label = document.getElementById("trip-label");
+  if (label) label.textContent = "Your trip: " + t.map((i) => DATA.cities[i.city].name).join(" · ") + (expCount ? " + " + expCount + " experience" + (expCount > 1 ? "s" : "") : "");
+  const build = document.getElementById("trip-build");
+  if (build) {
+    const first = t[0];
+    const u = new URLSearchParams({ destination: first.city });
+    const exps = [...new Set(t.flatMap((i) => i.exp || []))];
+    if (exps.length) u.set("interest", exps.join(", "));
+    const note = noteFor(first.city);
+    if (note) u.set("note", note);
+    build.setAttribute("href", "/plan?" + u.toString());
+  }
+  bar.classList.add("show");
+}
 function toggleSave(id) {
   let list = getList();
   list = list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
@@ -406,7 +493,7 @@ function cardHTML(c) {
     '<div class="sub">' + IC.pin + ' ' + (c.type || "Place") + ' in ' + (co.name || "") + '</div>' +
     '<p class="facts"><span>' + IC.wallet + ' <strong>$' + Number(c.monthly_cost_usd).toLocaleString("en-US") + '</strong>/month</span><span>' + IC.wifi + ' <strong>' + c.internet_mbps + ' Mbps</strong></span></p>' +
     '<p class="mynote" data-note-for="' + c.id + '" hidden></p></div>' +
-    '<div class="actions"><a class="abtn primary" href="/plan?destination=' + c.id + '">' + IC.plus + ' Add to trip</a>' +
+    '<div class="actions"><button class="abtn primary" type="button" data-addtrip="' + c.id + '">' + IC.plus + ' Add to trip</button>' +
     '<button class="abtn" type="button" data-save="' + c.id + '">' + IC.bookmark + ' Save</button>' +
     '<button class="abtn" type="button" data-note="' + c.id + '">' + IC.note + ' Note</button>' +
     '<button class="abtn" type="button" data-modal="' + c.id + '">' + IC.info + ' Details</button></div></article>';
@@ -479,14 +566,14 @@ function openModal(kind, id, focus) {
       (c.description ? '<div class="msec"><h4>The full picture, from the record</h4><p style="line-height:1.65;margin:0;">' + c.description + '</p></div>' : '<p style="line-height:1.6;">' + (c.note || "") + '</p>') +
       (c.neighbourhoods && c.neighbourhoods.length ? '<div class="msec"><h4>Neighbourhoods</h4><div class="hoods">' + c.neighbourhoods.map((h) => '<div class="hood"><b>' + h.name + '</b>' + (h.about || "") + '</div>').join("") + '</div></div>' : '') +
       (c.coworking && c.coworking.length ? '<div class="msec"><h4>Working from here</h4><ul class="tick">' + c.coworking.map((w) => '<li>' + w + '</li>').join("") + '</ul></div>' : '') +
-      (c.experiences && c.experiences.length ? '<div class="msec"><h4>Experiences on record</h4>' + c.experiences.map((e) => '<div class="xrow"><span>' + e.name + (e.category ? ' <small>' + e.category + '</small>' : '') + '<br><a href="/plan?destination=' + c.id + '&interest=' + encodeURIComponent(e.name) + '">+ Add experience to trip</a></span><small>' + (e.duration || "") + (e.price_usd != null ? ' · ' + (Array.isArray(e.price_usd) ? money0(e.price_usd[0]) + '–' + money0(e.price_usd[1]) : money0(e.price_usd)) : '') + '</small></div>').join("") + '<p class="note">Add experience to trip stays inside this app: it opens the planner with the experience already in your interests. This demo does not book or take payment.</p></div>' : '') +
+      (c.experiences && c.experiences.length ? '<div class="msec"><h4>Experiences on record</h4>' + c.experiences.map((e) => '<div class="xrow"><span>' + e.name + (e.category ? ' <small>' + e.category + '</small>' : '') + '<br><button class="mini" type="button" data-addexp="' + c.id + '" data-exp="' + String(e.name).replace(/"/g, "&quot;") + '">Add experience to trip</button></span><small>' + (e.duration || "") + (e.price_usd != null ? ' · ' + (Array.isArray(e.price_usd) ? money0(e.price_usd[0]) + '–' + money0(e.price_usd[1]) : money0(e.price_usd)) : '') + '</small></div>').join("") + '<p class="note">Add experience to trip stays inside this app: it opens the planner with the experience already in your interests. This demo does not book or take payment.</p></div>' : '') +
       '<div class="msec" id="note-anchor"><h4>Your note for ' + c.name + '</h4>' +
       '<textarea class="notebox" id="note-text" placeholder="Anything you want to remember — a neighbourhood to check, a coworking spot, a price to verify…">' + escT(noteFor(c.id)) + '</textarea>' +
       '<div class="toolsrow" style="margin-top:8px;"><button class="btn dark small" type="button" data-savenote="' + c.id + '">Save note</button>' +
       '<button class="abtn" type="button" data-save="' + c.id + '" style="flex:0 1 auto;">' + IC.bookmark + ' Save place</button>' +
       '<span class="note">Notes live in this browser only. Add this place to a trip and the note goes into the planner with it.</span></div></div>' +
       '<div class="msec"><p style="margin:0 0 10px;"><button class="fchip" type="button" style="cursor:pointer;" data-open-country="' + c.country_id + '">See ' + (co.name || "the country") + ' — visa, pros and cons, tax notes</button></p>' +
-      '<p style="margin:0;"><a class="btn dark" href="/plan?destination=' + c.id + '">+ Add to trip — plan ' + c.name + '</a> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div></div>';
+      '<p style="margin:0;"><button class="btn dark" type="button" data-addtrip="' + c.id + '">Add to trip</button> <a class="btn" href="/destination/' + c.id + '" style="border:1px solid var(--ink);">Full page</a></p></div></div>';
   } else {
     const c = DATA.countries[id]; if (!c) return;
     const cities = Object.values(DATA.cities).filter((x) => x.country_id === c.id);
@@ -524,6 +611,8 @@ function bindCards(root) {
   });
   root.querySelectorAll("[data-modal]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-modal")); });
   root.querySelectorAll("[data-modal-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-modal-country")); });
+  root.querySelectorAll("[data-addtrip]").forEach((b) => { paintTripBtn(b); b.onclick = () => toggleTripCity(b.getAttribute("data-addtrip")); });
+  root.querySelectorAll("[data-addexp]").forEach((b) => { paintExpBtn(b); b.onclick = () => toggleTripExp(b.getAttribute("data-addexp"), b.getAttribute("data-exp")); });
 }
 // --- Place autocomplete: every city and country in the records,
 // no model involved. Picking a place goes straight to its results.
@@ -567,6 +656,9 @@ document.addEventListener("DOMContentLoaded", () => {
   getList().forEach((id) => paintSave(id));
   Object.keys(getNotes()).forEach((id) => paintNote(id));
   paintPlanLinks(document);
+  paintTrip(document);
+  const tripClear = document.getElementById("trip-clear");
+  if (tripClear) tripClear.onclick = () => setTrip([]);
   // Inline note editors (destination pages)
   document.querySelectorAll("[data-noteedit]").forEach((ta) => { ta.value = noteFor(ta.getAttribute("data-noteedit")); });
   document.querySelectorAll("[data-notesave]").forEach((b) => {
@@ -638,6 +730,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function modalShell() {
   return `<div class="modal-veil" id="modal-veil"><div class="modal" id="modal-box"></div></div>
+<div id="trip-bar"><span id="trip-label"></span><a id="trip-build" class="btn gold small" href="/plan">Build my plan</a><button id="trip-clear" type="button">Clear</button></div>
 <script>window.__OG_DATA__ = ${JSON.stringify(clientData())};</script>
 <script>${CLIENT_JS}</script>`;
 }
@@ -685,7 +778,7 @@ export function renderBrowse(params = {}) {
         <span class="mchip">${esc(heroCountry.name)} Nomad Score <b>${esc(heroCountry.nomad_score)}</b></span>
       </div>
       <div class="bb-cta">
-        <a class="btn" href="/plan?destination=${esc(hero.id)}">Plan a stay in ${esc(hero.name)}</a>
+        <button class="btn" type="button" data-addtrip="${esc(hero.id)}">Add ${esc(hero.name)} to your trip</button>
         <a class="btn ghost" href="/destination/${esc(hero.id)}">Explore ${esc(hero.name)}</a>
       </div>
     </div>
@@ -793,7 +886,7 @@ export function renderDestination(cityId) {
     .map(
       (e) => `<li><strong>${esc(e.name)}</strong>: ${
         Array.isArray(e.price_usd) ? `${money(e.price_usd[0])}–${money(e.price_usd[1])}` : money(e.price_usd)
-      }${e.duration ? `, ${esc(e.duration)}` : ""} · <a href="/plan?destination=${esc(city.id)}&interest=${encodeURIComponent(e.name)}">+ Add experience to trip</a></li>`
+      }${e.duration ? `, ${esc(e.duration)}` : ""} · <button class="mini" type="button" data-addexp="${esc(city.id)}" data-exp="${esc(e.name)}">Add experience to trip</button></li>`
     )
     .join("");
   const neighbourhoods = (city.neighbourhoods ?? [])
@@ -807,7 +900,7 @@ export function renderDestination(cityId) {
       <div class="kicker">${esc(city.type ?? "")} in ${esc(country.name)}</div>
       <h1>${esc(city.name)}</h1>
       <div class="chips">${(city.vibe ?? []).map((v) => `<span class="mchip">${esc(v)}</span>`).join("")}</div>
-      <div class="bb-cta"><a class="btn" href="/plan?destination=${esc(city.id)}">Plan a stay</a><a class="btn ghost" href="/country/${esc(country.id)}">More in ${esc(country.name)}</a></div>
+      <div class="bb-cta"><button class="btn" type="button" data-addtrip="${esc(city.id)}">Add to trip</button><a class="btn ghost" href="/country/${esc(country.id)}">More in ${esc(country.name)}</a></div>
     </div>
   </section>
   <main>
@@ -820,7 +913,7 @@ export function renderDestination(cityId) {
     <div class="panel" style="margin:14px 0;">
       <h3 style="margin-top:0;">Your trip tools</h3>
       <div class="toolsrow">
-        <a class="abtn primary" style="flex:0 1 auto;" href="/plan?destination=${esc(city.id)}">${icon("plus")} Add to trip</a>
+        <button class="abtn primary" type="button" data-addtrip="${esc(city.id)}" style="flex:0 1 auto;">${icon("plus")} Add to trip</button>
         <button class="abtn" type="button" data-save="${esc(city.id)}" style="flex:0 1 auto;">${icon("bookmark")} Save</button>
         <a class="abtn" style="flex:0 1 auto;" href="/visa#${esc(country.id)}">${icon("calendar")} Visa &amp; stay in ${esc(country.name)}</a>
       </div>
@@ -828,6 +921,7 @@ export function renderDestination(cityId) {
       <textarea class="notebox" data-noteedit="${esc(city.id)}" placeholder="A neighbourhood to check, a coworking spot, a price to verify…"></textarea></label>
       <div class="toolsrow" style="margin-top:8px;"><button class="btn dark small" type="button" data-notesave="${esc(city.id)}">Save note</button></div>
     </div>
+    ${mapPanel(city)}
     ${city.note ? `<p style="line-height:1.6;">${esc(city.note)}</p>` : ""}
     ${city.best_season ? `<h2>Nomad essentials</h2><ul class="clean">
       <li><strong>Best season</strong>: ${esc(city.best_season)}</li>
@@ -845,7 +939,7 @@ export function renderDestination(cityId) {
       <h3>Staying in ${esc(country.name)}</h3>
       <p style="line-height:1.55;">${esc(country.visa ?? "")}${country.visa_duration ? ` Duration on the record: ${esc(country.visa_duration)}.` : ""}</p>
       <p class="note">Visa and stay information is shown from Outgrid's records and flagged <span class="pflag">unverified</span> until confirmed with official sources — the Plan Agent treats it the same way.</p>
-      <a class="btn dark" href="/plan?destination=${esc(city.id)}">Plan a stay in ${esc(city.name)}</a>
+      <button class="btn dark" type="button" data-addtrip="${esc(city.id)}">Add ${esc(city.name)} to your trip</button>
     </div>
     ${siblings.length ? `<h2>More cities in ${esc(country.name)}</h2><div class="grid">${siblings.map((s) => cityCard(s, country)).join("")}</div>` : ""}
   </main>`;
@@ -1020,7 +1114,9 @@ export function renderHowItWorks() {
 
     <section class="panel" style="margin:14px 0;"><h3>Features adapted from the production catalog</h3>
       <ul class="clean">
-        <li><strong>Experience cards:</strong> priced experiences from the record, with <strong>Add to trip</strong>. It opens Plan with Outgrid in this app with the experience pre-filled — no fake booking partner and no payment.</li>
+        <li><strong>Experience cards:</strong> priced experiences from the record, with <strong>Add experience to trip</strong>. Adding one puts it in your trip (below) — no fake booking partner and no payment.</li>
+        <li><strong>Trip-first planning (Nov 4):</strong> like the live Outgrid, <strong>Build my plan</strong> only appears once your trip holds at least one destination or experience. Add places from any card, pop-up, or destination page; the trip bar at the bottom of the screen collects them, and Build carries the first place, its experiences, and your note for it into the planner.</li>
+        <li><strong>Maps (Nov 4):</strong> destination and plan pages carry a real map panel — OpenStreetMap tiles centred on the coordinates held in the place's own record (the same coordinates Locate me uses), drawn with plain tile images so it works inside the demo's strict security policy.</li>
         <li><strong>Locate me:</strong> the browser finds the nearest of the 16 snapshot places using coordinates already in the records. The location is used in the browser only and is not stored.</li>
         <li><strong>Stay Rules:</strong> a five-country snapshot edition. It publishes only stay and tax fields present in the records, all flagged unverified, with the not-advice disclaimer.</li>
         <li><strong>Search in your own words:</strong> Muse Spark turns a sentence into filters; the records do the matching and the page shows what the model heard.</li>
@@ -1038,7 +1134,7 @@ export function renderHowItWorks() {
         <li><strong>Missing-place generation:</strong> a place outside the snapshot has no checked record here, so the honest answer is “not in the demo data,” not a generated page.</li>
         <li><strong>Modal:</strong> an approved fallback host, not wired in because Baseten already serves the Verifier and a second host would add risk without improving the judged flow.</li>
       </ul>
-      <p class="note">Third parties actually used by this demo: Meta Model API (Muse Spark and Muse Image), Baseten (Muse Spark Open), Render (hosting), and GitHub (public code and history).</p>
+      <p class="note">Third parties actually used by this demo: Meta Model API (Muse Spark and Muse Image), Baseten (Muse Spark Open), OpenStreetMap (map tiles), Render (hosting), and GitHub (public code and history).</p>
     </section>
   </main>`;
   return page("How this demo works", body, modalShell());
@@ -1051,7 +1147,12 @@ export function renderIntake(destinationId, initialInterests = "") {
     .join("");
   const body = `<main>
     <h2>Plan your stay</h2>
-    <p class="note">Tell the planner what you need. The plan is then checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
+    <p class="note" id="intake-intro">Tell the planner what you need. The plan is then checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
+    <div id="trip-gate" class="panel" style="display:none;max-width:560px;">
+      <h3 style="margin-top:0;">Start with a place or an experience</h3>
+      <p style="line-height:1.6;">Build my plan appears once your trip has something in it — the same flow as the live Outgrid. Add a destination or an experience to your trip first, then come back: the planner builds around what's in your trip.</p>
+      <p><a class="btn dark" href="/">Browse destinations</a></p>
+    </div>
     <form class="intake" id="intake-form" method="get" action="/plan/view">
       <label>Destination <select name="destination_id">${options}</select></label>
       <label>Start date <input type="date" name="start_date" value="2026-11-09" required></label>
@@ -1066,7 +1167,7 @@ export function renderIntake(destinationId, initialInterests = "") {
       <label>Fitness needs <input name="fitness_needs" value="Morning runs"></label>
       <button class="btn dark" type="submit">Build my plan</button>
     </form>
-    <p class="note" style="max-width:560px;">Building takes about a minute: one model writes the plan, a second model checks every claim in it. You'll see the stages while you wait — the plan only appears once the check has run.</p>
+    <p class="note" id="intake-note" style="max-width:560px;">Building takes about a minute: one model writes the plan, a second model checks every claim in it. You'll see the stages while you wait — the plan only appears once the check has run.</p>
     <div class="buildveil" id="build-veil" role="dialog" aria-modal="true">
       <div class="buildcard">
         <div class="spinner"></div>
@@ -1082,6 +1183,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("intake-form");
   const veil = document.getElementById("build-veil");
   if (!form || !veil) return;
+  // Trip gate: with no destination chosen and an empty trip, Build my plan
+  // stays hidden behind a "start with a place" panel — the live Outgrid flow.
+  const gate = document.getElementById("trip-gate");
+  if (gate && !new URLSearchParams(location.search).get("destination")) {
+    let trip = [];
+    try { trip = JSON.parse(localStorage.getItem("og-trip") || "[]"); } catch {}
+    const first = (trip || []).find((i) => i && i.city);
+    if (!first) {
+      form.style.display = "none";
+      const intro = document.getElementById("intake-intro"); if (intro) intro.style.display = "none";
+      const note = document.getElementById("intake-note"); if (note) note.style.display = "none";
+      gate.style.display = "block";
+    } else {
+      const sel = form.querySelector('select[name="destination_id"]');
+      if (sel) sel.value = first.city;
+      const exps = (first.exp || []).join(", ");
+      const interestInput = form.querySelector('input[name="interests"]');
+      if (interestInput && exps && !interestInput.value) interestInput.value = exps;
+    }
+  }
   const stage = document.getElementById("build-stage");
   const bar = document.getElementById("build-bar-fill");
   const dest = document.getElementById("build-dest");
@@ -1145,6 +1266,7 @@ export function renderPlan(plan, city, options = {}) {
     ${savedBanner}
     ${summaryBox}
     ${visaPanel}
+    ${mapPanel(city, 260)}
     ${days}
     <p><a href="/">← Browse all destinations</a></p>
   </main>`;
