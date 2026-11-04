@@ -210,6 +210,14 @@ const CSS = `
   .mapbox { position:relative; overflow:hidden; border-radius:10px; background:#dfe7ea; }
   .maplayer { position:absolute; width:1152px; height:640px; left:50%; top:50%; transform:translate(-50%,-50%); }
   .mapmarker { position:absolute; left:50%; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:50%; background:var(--gold); border:3px solid var(--ink); box-shadow:0 2px 10px rgba(0,0,0,.45); z-index:2; }
+  /* Info bubbles: one fact per compartment, icon + label + value + plain read */
+  .bubbles { display:grid; grid-template-columns:repeat(auto-fit, minmax(158px, 1fr)); gap:10px; margin:14px 0; }
+  .bubble { background:#f8f3e6; border:1px solid #e3dac2; border-radius:12px; padding:12px 14px; }
+  .bubble .blabel { display:flex; align-items:center; gap:6px; font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:var(--line); }
+  .bubble .bvalue { font-size:21px; font-weight:bold; margin:5px 0 3px; }
+  .bubble .bvalue small { font-size:13px; font-weight:normal; color:var(--line); }
+  .bubble .bread { font-size:13px; color:var(--line); line-height:1.45; }
+  .wselect { font:inherit; font-size:15px; padding:8px 10px; border:1px solid #c9c0aa; border-radius:8px; background:#fff; margin-top:6px; max-width:100%; }
 `;
 
 const REGION_ART = {
@@ -277,6 +285,7 @@ const ICON_PATHS = {
   compass: '<circle cx="12" cy="12" r="8.8"/><path d="M15.5 8.5l-2.1 5-5 2.1 2.1-5z"/>',
   sparkle: '<path d="M12 3.2l1.9 5.4 5.4 1.9-5.4 1.9L12 17.8l-1.9-5.4L4.7 10.5l5.4-1.9z"/><path d="M18.6 15.6l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z"/>',
   info: '<circle cx="12" cy="12" r="8.8"/><path d="M12 11v5M12 7.8v.3"/>',
+  alert: '<path d="M12 4.2L2.9 19.5h18.2z"/><path d="M12 10v4.2M12 16.9v.3"/>',
   home: '<path d="M4 11.2L12 4l8 7.2"/><path d="M6.2 9.8V20h11.6V9.8"/>',
 };
 function icon(name) {
@@ -285,6 +294,12 @@ function icon(name) {
 // Plain-language reads of the numbers, same wording family as the
 // detail pop-up's decision aids.
 function wifiWord(m) { return m >= 100 ? "Very fast" : m >= 50 ? "Fast" : m >= 25 ? "Workable" : "Basic"; }
+function wifiRead(m) { return m >= 50 ? "Video calls, uploads, streaming — comfortable" : m >= 25 ? "Fine for video calls; big uploads will crawl" : "Light work only — video calls may struggle"; }
+function safetyReadS(s) { return s >= 8 ? "High on record" : s >= 6.5 ? "Mid-range — normal city awareness" : "Lower on record — research areas first"; }
+function advisoryReadS(l) { return ({ 1: "Exercise normal precautions", 2: "Exercise increased caution", 3: "Reconsider travel", 4: "Do not travel" })[l] || "US State Department level on record"; }
+function bubbleS(iconName, label, value, read) {
+  return `<div class="bubble"><div class="blabel">${icon(iconName)} ${label}</div><div class="bvalue">${value}</div><div class="bread">${read}</div></div>`;
+}
 function safetyWordShort(s) { return s >= 8 ? "High" : s >= 6.5 ? "Mid-range" : "Lower"; }
 // Badges are computed from the record only — a badge appears because a
 // number in the data earns it, never as decoration.
@@ -392,6 +407,9 @@ const IC = {
   check: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.6l5 5L19.5 7"/></svg>',
   pin: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.2S5.2 15.4 5.2 9.9a6.8 6.8 0 1 1 13.6 0c0 5.5-6.8 11.3-6.8 11.3z"/><circle cx="12" cy="9.9" r="2.6"/></svg>',
   info: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.8"/><path d="M12 11v5M12 7.8v.3"/></svg>',
+  calendar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  sparkle: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l1.9 5.4 5.4 1.9-5.4 1.9L12 17.8l-1.9-5.4L4.7 10.5l5.4-1.9z"/><path d="M18.6 15.6l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z"/></svg>',
+  alert: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4.2L2.9 19.5h18.2z"/><path d="M12 10v4.2M12 16.9v.3"/></svg>',
 };
 function escT(s) { return String(s ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); }
 function getList() { try { return JSON.parse(localStorage.getItem("og-my-list") || "[]"); } catch { return []; } }
@@ -531,6 +549,10 @@ function renderContinue() {
   bindCards(host);
 }
 function money0(n) { return "$" + Number(n).toLocaleString("en-US"); }
+function advisoryRead(l) { return ({ 1: "Exercise normal precautions", 2: "Exercise increased caution", 3: "Reconsider travel", 4: "Do not travel" })[l] || "US State Department level on record"; }
+function bubbleHTML(icon, label, value, read) {
+  return '<div class="bubble"><div class="blabel">' + icon + label + '</div><div class="bvalue">' + value + '</div><div class="bread">' + read + '</div></div>';
+}
 function wifiVerdict(m) { return m >= 50 ? "Video calls, uploads, streaming — comfortable" : m >= 25 ? "Fine for video calls; big uploads will crawl" : "Light work only — video calls may struggle"; }
 function safetyWord(s) { return s >= 8 ? "High on record" : s >= 6.5 ? "Mid-range — normal city awareness" : "Lower on record — research areas first"; }
 function heroHTML(img, title, sub) {
@@ -574,22 +596,15 @@ function openModal(kind, id, focus) {
   if (!veil || !box) return;
   if (kind === "city") {
     const c = DATA.cities[id]; if (!c) return; const co = DATA.countries[c.country_id] || {};
-    const decide = [];
-    if (c.rent_usd != null && c.monthly_cost_usd) {
-      decide.push('<div>Rent share<b>' + Math.round((c.rent_usd / c.monthly_cost_usd) * 100) + '% of budget</b></div>');
-      decide.push('<div>Left for living<b>' + money0(c.monthly_cost_usd - c.rent_usd) + '/mo</b></div>');
-    } else {
-      decide.push('<div>Rent<b>Not on record</b></div>');
-    }
-    decide.push('<div>Internet verdict<b>' + wifiVerdict(c.internet_mbps) + '</b></div>');
-    decide.push('<div>Safety read<b>' + safetyWord(c.safety_10) + '</b></div>');
+    const bubbles = [
+      bubbleHTML(IC.wallet, "Cost of living", money0(c.monthly_cost_usd) + '<small>/month</small>', c.rent_usd != null ? "Rent " + money0(c.rent_usd) + " — " + Math.round((c.rent_usd / c.monthly_cost_usd) * 100) + "% of the budget · " + money0(c.monthly_cost_usd - c.rent_usd) + " left for living" : "Rent is not in this record"),
+      bubbleHTML(IC.wifi, "Internet", c.internet_mbps + '<small> Mbps</small>', wifiVerdict(c.internet_mbps)),
+      bubbleHTML(IC.shield, "Safety", c.safety_10 + '<small>/10</small>', safetyWord(c.safety_10)),
+      bubbleHTML(IC.sparkle, (co.name || "Country") + " Nomad Score", String(co.nomad_score ?? "—"), "Country-level score on record"),
+      bubbleHTML(IC.calendar, "Stay on record", co.visa_duration || "—", "Long-stay route — the visa section below has the detail"),
+    ];
     box.innerHTML = heroHTML('/img/' + c.id + '.jpg', c.name, (c.type || "") + ' in ' + (co.name || "") + (c.vibe && c.vibe.length ? ' · ' + c.vibe.join(' · ') : '')) +
-      '<div class="mbody"><div class="stats"><div>Monthly budget<b>' + money0(c.monthly_cost_usd) + '</b></div>' +
-      '<div>Rent<b>' + (c.rent_usd != null ? money0(c.rent_usd) : "Not in the data") + '</b></div>' +
-      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
-      '<div>' + (co.name || "Country") + ' Nomad Score<b>' + (co.nomad_score ?? "—") + '</b></div>' +
-      '<div>Stay on record<b>' + (co.visa_duration || "—") + '</b></div></div>' +
-      '<div class="stats" style="margin-top:0;">' + decide.join("") + '</div>' +
+      '<div class="mbody"><div class="bubbles">' + bubbles.join("") + '</div>' +
       '<div class="msec" id="trip-anchor"><h4>Add to your trip — dates &amp; picks</h4>' +
       '<div class="toolsrow"><label style="font-size:13px;color:var(--line);">From<br><input type="date" data-tripdate="start" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label>' +
       '<label style="font-size:13px;color:var(--line);">To<br><input type="date" data-tripdate="end" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label></div>' +
@@ -601,7 +616,7 @@ function openModal(kind, id, focus) {
       (c.description ? '<div class="msec"><h4>The full picture, from the record</h4><p style="line-height:1.65;margin:0;">' + c.description + '</p></div>' : '<p style="line-height:1.6;">' + (c.note || "") + '</p>') +
       (c.neighbourhoods && c.neighbourhoods.length ? '<div class="msec"><h4>Neighbourhoods</h4><div class="hoods">' + c.neighbourhoods.map((h) => '<div class="hood"><b>' + h.name + '</b>' + (h.about || "") + '</div>').join("") + '</div></div>' : '') +
       (c.coworking && c.coworking.length ? '<div class="msec"><h4>Working from here</h4><ul class="tick">' + c.coworking.map((w) => '<li>' + w + '</li>').join("") + '</ul></div>' : '') +
-      (c.experiences && c.experiences.length ? '<div class="msec"><h4>Experiences on record</h4>' + c.experiences.map((e) => '<div class="xrow"><span>' + e.name + (e.category ? ' <small>' + e.category + '</small>' : '') + '<br><button class="mini" type="button" data-addexp="' + c.id + '" data-exp="' + String(e.name).replace(/"/g, "&quot;") + '">Add experience to trip</button></span><small>' + (e.duration || "") + (e.price_usd != null ? ' · ' + (Array.isArray(e.price_usd) ? money0(e.price_usd[0]) + '–' + money0(e.price_usd[1]) : money0(e.price_usd)) : '') + '</small></div>').join("") + '<p class="note">Add experience to trip stays inside this app: it opens the planner with the experience already in your interests. This demo does not book or take payment.</p></div>' : '') +
+      (c.experiences && c.experiences.length ? '<div class="msec"><h4>Experiences on record</h4>' + c.experiences.map((e) => '<div class="xrow"><span>' + e.name + (e.category ? ' <small>' + e.category + '</small>' : '') + '<br><button class="mini" type="button" data-addexp="' + c.id + '" data-exp="' + String(e.name).replace(/"/g, "&quot;") + '">Add experience to trip</button></span><small>' + (e.duration || "") + (e.price_usd != null ? ' · ' + (Array.isArray(e.price_usd) ? money0(e.price_usd[0]) + '–' + money0(e.price_usd[1]) : money0(e.price_usd)) : '') + '</small></div>').join("") + '<p class="note">Add experience to trip saves the pick to your trip in this browser — Build my plan plans around it. This demo does not book or take payment.</p></div>' : '') +
       '<div class="msec" id="note-anchor"><h4>Your note for ' + c.name + '</h4>' +
       '<textarea class="notebox" id="note-text" placeholder="Anything you want to remember — a neighbourhood to check, a coworking spot, a price to verify…">' + escT(noteFor(c.id)) + '</textarea>' +
       '<div class="toolsrow" style="margin-top:8px;"><button class="btn dark small" type="button" data-savenote="' + c.id + '">Save note</button>' +
@@ -612,13 +627,17 @@ function openModal(kind, id, focus) {
   } else {
     const c = DATA.countries[id]; if (!c) return;
     const cities = Object.values(DATA.cities).filter((x) => x.country_id === c.id);
+    const cbubbles = [
+      bubbleHTML(IC.wallet, "Cost of living", money0(c.monthly_cost_usd) + '<small>/month</small>', "Typical monthly budget on record"),
+      bubbleHTML(IC.wifi, "Internet", c.internet_mbps + '<small> Mbps</small>', wifiVerdict(c.internet_mbps)),
+      bubbleHTML(IC.shield, "Safety", c.safety_10 + '<small>/10</small>', safetyWord(c.safety_10)),
+      bubbleHTML(IC.alert, "US travel advisory", c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—", advisoryRead(c.us_travel_advisory_level)),
+      bubbleHTML(IC.calendar, "Stay length on record", c.visa_duration || "—", "Long-stay route on record"),
+    ];
+    if (c.visa_cost_usd != null) cbubbles.push(bubbleHTML(IC.note, "Visa cost on record", money0(c.visa_cost_usd), "One-off cost in the records"));
+    if (c.visa_income_requirement_usd_month != null) cbubbles.push(bubbleHTML(IC.wallet, "Visa income bar", money0(c.visa_income_requirement_usd_month) + '<small>/month</small>', "Income the route asks for, on record"));
     box.innerHTML = heroHTML('/img/country-' + c.id + '.jpg', (c.flag || "") + ' ' + c.name, c.region + ' · Nomad Score ' + c.nomad_score + (c.capital ? ' · Capital: ' + c.capital : '')) +
-      '<div class="mbody"><div class="stats"><div>Monthly budget<b>' + money0(c.monthly_cost_usd) + '</b></div>' +
-      '<div>Internet<b>' + c.internet_mbps + ' Mbps</b></div><div>Safety<b>' + c.safety_10 + '/10</b></div>' +
-      '<div>Stay length on record<b>' + (c.visa_duration || "—") + '</b></div>' +
-      '<div>US travel advisory<b>' + (c.us_travel_advisory_level != null ? "Level " + c.us_travel_advisory_level : "—") + '</b></div>' +
-      (c.visa_cost_usd != null ? '<div>Visa cost on record<b>' + money0(c.visa_cost_usd) + '</b></div>' : '') +
-      (c.visa_income_requirement_usd_month != null ? '<div>Visa income bar<b>' + money0(c.visa_income_requirement_usd_month) + '/mo</b></div>' : '') + '</div>' +
+      '<div class="mbody"><div class="bubbles">' + cbubbles.join("") + '</div>' +
       '<p style="line-height:1.6;">' + (c.best_for || "") + '</p>' +
       (c.visa ? '<div class="msec"><h4>Stay and visa, from the record</h4><p style="line-height:1.6;margin:0;">' + String(c.visa) + '</p><p class="note">Stay information from the Outgrid records — flagged unverified, confirm with official sources.</p></div>' : '') +
       ((c.pros && c.pros.length) || (c.cons && c.cons.length) ? '<div class="cols msec">' +
@@ -724,6 +743,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeW = () => { welcome.classList.remove("open"); try { localStorage.setItem("og-welcomed", "1"); } catch {} };
     welcome.querySelectorAll("[data-welcome-close]").forEach((b) => { b.onclick = closeW; });
     welcome.addEventListener("click", (e) => { if (e.target === welcome) closeW(); });
+    // New-visitor passport: asked once, here, and kept for the session.
+    const wp = document.getElementById("welcome-passport");
+    if (wp) {
+      let savedP = ""; try { savedP = localStorage.getItem("og-passport") || ""; } catch {}
+      if (savedP) wp.value = savedP;
+      wp.addEventListener("change", () => { try { localStorage.setItem("og-passport", wp.value); } catch {} });
+    }
   }
   // Visa & stay page: passport picker personalises the scope note.
   const pSel = document.getElementById("passport-select");
@@ -805,6 +831,8 @@ export function renderBrowse(params = {}) {
       <div class="wrow">${icon("sparkle")}<div><b>Two AI models — one checks the other</b>A planner (Muse Spark, via the Meta Model API) drafts your day-by-day stay. A second model (Muse Spark Open, served via Baseten) then checks every claim in it against the records before you see the plan.</div></div>
       <div class="wrow">${icon("shield")}<div><b>If it isn't in the data, it doesn't ship</b>Unsupported claims get dropped. Unverifiable ones are flagged in the open — never quietly made up.</div></div>
       <div class="wrow">${icon("bookmark")}<div><b>Make it yours</b>Save places, jot a note on any card, add experiences to a trip. Saves and notes live in your browser only, and your note travels into the planner with the place.</div></div>
+      <div class="wrow">${icon("pin")}<div><b>Your passport</b>Visa and stay info depends on it — pick yours and the site frames everything around it. Kept in your browser only.
+        <br><select id="welcome-passport" class="wselect" aria-label="Your passport"><option value="">Choose your passport (optional)</option>${PASSPORTS.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join("")}</select></div></div>
       <p class="note">Demo snapshot: 5 countries, 16 cities. No bookings, no payments, no accounts — planning and checking only.</p>
       <div class="toolsrow" style="margin-top:14px;">
         <button class="btn dark" type="button" data-welcome-close>Start exploring</button>
@@ -951,11 +979,11 @@ export function renderDestination(cityId) {
     </div>
   </section>
   <main>
-    <div class="stats">
-      <div>Monthly budget<b>${money(city.monthly_cost_usd)}</b></div>
-      <div>Rent<b>${city.rent_usd != null ? money(city.rent_usd) : "Not in the data"}</b></div>
-      <div>Internet<b>${esc(city.internet_mbps)} Mbps</b></div>
-      <div>Safety<b>${esc(city.safety_10)}/10</b></div>
+    <div class="bubbles">
+      ${bubbleS("wallet", "Cost of living", `${money(city.monthly_cost_usd)}<small>/month</small>`, city.rent_usd != null ? `Rent ${money(city.rent_usd)} · ${money(city.monthly_cost_usd - city.rent_usd)} left for living` : "Rent is not in this record")}
+      ${bubbleS("wifi", "Internet", `${esc(city.internet_mbps)}<small> Mbps</small>`, wifiRead(city.internet_mbps))}
+      ${bubbleS("shield", "Safety", `${esc(city.safety_10)}<small>/10</small>`, safetyReadS(city.safety_10))}
+      ${bubbleS("calendar", "Stay on record", esc(country.visa_duration ?? "—"), "Long-stay route — the staying panel below has the detail")}
     </div>
     <div class="panel" style="margin:14px 0;">
       <h3 style="margin-top:0;">Your trip tools</h3>
@@ -1003,12 +1031,12 @@ export function renderCountry(countryId) {
     <p class="note"><a href="/">← All destinations</a></p>
     <h2 style="font-size:32px;margin-bottom:4px;">${esc(country.flag ?? "")} ${esc(country.name)}</h2>
     <p class="note" style="font-size:15px;">${esc(country.region)} · ${esc(country.best_for ?? "")}</p>
-    <div class="stats">
-      <div>Nomad Score<b>${esc(country.nomad_score)}</b></div>
-      <div>Monthly budget<b>${money(country.monthly_cost_usd)}</b></div>
-      <div>Internet<b>${esc(country.internet_mbps)} Mbps</b></div>
-      <div>Safety<b>${esc(country.safety_10)}/10</b></div>
-      <div>US travel advisory<b>Level ${esc(country.us_travel_advisory_level ?? "—")}</b></div>
+    <div class="bubbles">
+      ${bubbleS("star", "Nomad Score", esc(country.nomad_score), "Outgrid's country score on record")}
+      ${bubbleS("wallet", "Cost of living", `${money(country.monthly_cost_usd)}<small>/month</small>`, "Typical monthly budget on record")}
+      ${bubbleS("wifi", "Internet", `${esc(country.internet_mbps)}<small> Mbps</small>`, wifiRead(country.internet_mbps))}
+      ${bubbleS("shield", "Safety", `${esc(country.safety_10)}<small>/10</small>`, safetyReadS(country.safety_10))}
+      ${bubbleS("alert", "US travel advisory", country.us_travel_advisory_level != null ? `Level ${esc(country.us_travel_advisory_level)}` : "—", advisoryReadS(country.us_travel_advisory_level))}
     </div>
     <div class="cols">
       <div class="panel"><h3>Staying there</h3>
@@ -1169,7 +1197,9 @@ export function renderHowItWorks() {
         <li><strong>Search in your own words:</strong> Muse Spark turns a sentence into filters; the records do the matching and the page shows what the model heard.</li>
         <li><strong>Cards you can act on (Nov 4):</strong> every place card carries icon-labelled facts (cost, Wi-Fi speed with a plain-English read, safety), badges the record numbers actually earn (Nomad Score, under-$1,300/month, fast Wi-Fi), and always-visible buttons in Outgrid's own words — <strong>Add to trip</strong>, <strong>Save</strong>, <strong>Note</strong>, <strong>Details</strong> — plus <strong>Add experience to trip</strong> on experiences. Saves and notes live in the visitor's browser only; a note is passed to the planner as an interest when the place is added to a trip.</li>
         <li><strong>Visa &amp; stay, by passport (Nov 4):</strong> pick your passport and the page frames each country's long-stay route from the records (route, duration, cost, income bar) around it. The records do not hold per-passport tourist-entry allowances, so the page states that gap instead of guessing — the same grounding rule as the planner.</li>
-        <li><strong>Welcome pop-up (Nov 4):</strong> a first-visit card that explains the demo in four short rows — real records, two Muse models checking each other, nothing invented, saves and notes in your browser. It shows once and stays dismissed.</li>
+        <li><strong>Welcome pop-up (Nov 4):</strong> a first-visit card that explains the demo in short rows — real records, two Muse models checking each other, nothing invented, saves and notes in your browser — and asks new visitors for their passport once, so visa &amp; stay framing and the planner start from it. It shows once and stays dismissed.</li>
+        <li><strong>Info bubbles (Nov 4):</strong> cost of living, internet, safety, stay length, and the US travel advisory each get their own compartment — icon, label, the number, and a plain-English read — in the place pop-ups and on destination and country pages, instead of one bundled stats grid.</li>
+        <li><strong>No re-asking (Nov 4):</strong> the plan form no longer asks for a destination or dates — those come from the trip picks and travel with the plan invisibly. It asks only what the picks don't already say (travellers, budget, pace, interests).</li>
       </ul>
     </section>
 
@@ -1189,12 +1219,10 @@ export function renderHowItWorks() {
 
 export function renderIntake(destinationId, initialInterests = "", tripDates = {}) {
   const { cities } = loadData();
-  const options = cities
-    .map((c) => `<option value="${esc(c.id)}" ${c.id === destinationId ? "selected" : ""}>${esc(c.name)}</option>`)
-    .join("");
+  const cityNames = Object.fromEntries(cities.map((c) => [c.id, c.name]));
   const body = `<main>
     <h2>Plan your stay</h2>
-    <p class="note" id="intake-intro">Tell the planner what you need. The plan is then checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
+    <p class="note" id="intake-intro">Destination and dates come from your trip picks above — the planner already has them, so they're not asked again. Tell it the rest, and the plan is checked claim-by-claim by a second model against the destination's record — nothing gets invented.</p>
     <div id="trip-summary" style="display:none;max-width:560px;"></div>
     <div id="trip-gate" class="panel" style="display:none;max-width:560px;">
       <h3 style="margin-top:0;">Start with a place or an experience</h3>
@@ -1202,13 +1230,13 @@ export function renderIntake(destinationId, initialInterests = "", tripDates = {
       <p><a class="btn dark" href="/">Browse destinations</a></p>
     </div>
     <form class="intake" id="intake-form" method="get" action="/plan/view">
-      <label>Destination <select name="destination_id">${options}</select></label>
-      <label>Start date <input type="date" name="start_date" value="${esc(tripDates.start || "2026-11-09")}" required></label>
-      <label>End date <input type="date" name="end_date" value="${esc(tripDates.end || "2026-11-11")}" required></label>
+      <input type="hidden" name="destination_id" value="${esc(destinationId)}">
+      <input type="hidden" name="start_date" value="${esc(tripDates.start || "2026-11-09")}">
+      <input type="hidden" name="end_date" value="${esc(tripDates.end || "2026-11-11")}">
+      <input type="hidden" name="accommodation_tier" value="mid">
       <label>Travelers <input type="number" name="travelers" value="1" min="1"></label>
-      <label>Nationality (stay-rules context) <input name="nationality" value="US"></label>
+      <label>Passport (frames the visa &amp; stay snapshot) <input name="nationality" value="US"></label>
       <label>Budget range (USD/month) <input name="budget_range" value="1000-1500"></label>
-      <label>Accommodation tier <input name="accommodation_tier" value="mid"></label>
       <label>Pace <select name="pace"><option>relaxed</option><option selected>balanced</option><option>packed</option></select></label>
       <label>Interests (comma separated) <input name="interests" value="${esc(initialInterests || (destinationId === "bacalar" ? "lagoon, cenotes" : ""))}"></label>
       <label>Coworking needs <input name="coworking_needs" value="Daily focused work, reliable WiFi"></label>
@@ -1227,13 +1255,14 @@ export function renderIntake(destinationId, initialInterests = "", tripDates = {
     </div>
   </main>`;
   const script = `<script>
+const CITY_NAMES = ${JSON.stringify(cityNames)};
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("intake-form");
   const veil = document.getElementById("build-veil");
   if (!form || !veil) return;
   // Your trip — everything picked so far, shown on this page.
   const summary = document.getElementById("trip-summary");
-  const nameOf = (id) => { const o = form.querySelector('select[name="destination_id"] option[value="' + id + '"]'); return o ? o.textContent : id; };
+  const nameOf = (id) => CITY_NAMES[id] || id;
   const fmtD = (v) => { const d = new Date(v + "T12:00:00"); return isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
   const renderSummary = () => {
     if (!summary) return;
@@ -1250,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const nt = notes[i.city] ? '<br><span class="note">Your note: ' + notes[i.city] + "</span>" : "";
         return '<div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #e5ddc9;"><div><strong>' + nameOf(i.city) + "</strong>" + dates + exps + nt + '</div><button class="mini" type="button" data-trip-remove="' + i.city + '">Remove</button></div>';
       }).join("") +
-      '<p class="note" style="margin-bottom:0;">The plan below is built for the selected destination, using these dates and picks — they are already filled into the form.</p></div>';
+      '<p class="note" style="margin-bottom:0;">The plan below is built from these picks — destination and dates travel with it, nothing to re-enter.</p></div>';
     summary.style.display = "block";
     summary.querySelectorAll("[data-trip-remove]").forEach((b) => {
       b.onclick = () => {
@@ -1264,6 +1293,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
   renderSummary();
+  // Passport asked at the start of the session (welcome pop-up) pre-fills here.
+  const natInput = form.querySelector('input[name="nationality"]');
+  if (natInput) {
+    let p = "";
+    try { p = localStorage.getItem("og-passport") || ""; } catch {}
+    if (p) natInput.value = p === "United States" ? "US" : p;
+  }
   // Trip gate: with no destination chosen and an empty trip, Build my plan
   // stays hidden behind a "start with a place" panel — the live Outgrid flow.
   const gate = document.getElementById("trip-gate");
@@ -1277,8 +1313,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const note = document.getElementById("intake-note"); if (note) note.style.display = "none";
       gate.style.display = "block";
     } else {
-      const sel = form.querySelector('select[name="destination_id"]');
-      if (sel) sel.value = first.city;
+      const destInput = form.querySelector('input[name="destination_id"]');
+      if (destInput) destInput.value = first.city;
       const exps = (first.exp || []).join(", ");
       const interestInput = form.querySelector('input[name="interests"]');
       if (interestInput && exps && !interestInput.value) interestInput.value = exps;
@@ -1292,8 +1328,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const bar = document.getElementById("build-bar-fill");
   const dest = document.getElementById("build-dest");
   form.addEventListener("submit", () => {
-    const sel = form.querySelector('select[name="destination_id"]');
-    if (dest && sel) dest.textContent = sel.options[sel.selectedIndex].text + " plan";
+    const destInput = form.querySelector('input[name="destination_id"]');
+    if (dest && destInput) dest.textContent = (CITY_NAMES[destInput.value] || "Your") + " plan";
     veil.classList.add("open");
     requestAnimationFrame(() => { if (bar) bar.style.width = "88%"; });
     setTimeout(() => { if (stage) stage.textContent = "Muse Spark Open, served via Baseten, is now checking every claim in the draft against the destination's records."; }, 14000);
