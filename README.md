@@ -102,11 +102,15 @@ new data — the grounding rule is unchanged.
 **Later on Nov 4:** the trip-first flow, a browse sidebar, plan-build
 feedback, maps, and sharper heroes. Following the live Outgrid,
 **Build my plan** now appears only once a visitor's trip holds at least
-one destination or experience: Add to trip / Add experience to trip
-toggle places into a browser-kept trip, a trip bar collects them, and
-Build carries the first place, its experiences, and the visitor's note
-into the intake (a bare visit to the plan form explains the flow
-instead of showing the button). The homepage browse gained a sticky
+one destination or experience: Add to trip opens the place's card,
+which asks for dates and lists its experiences to pick — add-to-cart
+with options — and everything chosen is kept in a browser-side trip. A
+trip bar collects the picks, Build carries the first place with its
+dates, experiences, and the visitor's note into the intake, and the
+intake opens with a “Your trip — what you picked” summary (dates and
+picks pre-filled) so every choice is visible before building. A bare
+visit to the plan form explains the flow instead of showing the
+button. The homepage browse gained a sticky
 sidebar — Explore links plus the classic filters (max budget, Nomad
 Score band, place type, sort). Submitting the plan form now opens a
 progress panel that names the stage (Planner drafting → Verifier

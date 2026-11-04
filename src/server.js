@@ -182,7 +182,8 @@ const server = createServer(async (req, res) => {
       const note = url.searchParams.get("note") || "";
       return send(res, renderIntake(
         url.searchParams.get("destination") || "bacalar",
-        [interest, note].filter(Boolean).join(", ")
+        [interest, note].filter(Boolean).join(", "),
+        { start: url.searchParams.get("start") || "", end: url.searchParams.get("end") || "" }
       ));
     }
     if (url.pathname === "/plan/view") {
