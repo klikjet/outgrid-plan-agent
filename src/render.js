@@ -206,6 +206,7 @@ const CSS = `
   #trip-bar.show { transform:translateX(-50%) translateY(0); }
   #trip-label { font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #trip-clear { background:none; border:none; color:var(--cream); text-decoration:underline; cursor:pointer; font:inherit; font-size:13px; padding:4px 6px; }
+  body.has-trip { padding-bottom:96px; }
   .in-trip { background:#e9f2e2 !important; border-color:#93b184 !important; color:#2f4a22 !important; }
   .mapbox { position:relative; overflow:hidden; border-radius:10px; background:#dfe7ea; }
   .maplayer { position:absolute; width:1152px; height:640px; left:50%; top:50%; transform:translate(-50%,-50%); }
@@ -462,6 +463,12 @@ function setTripDates(cityId, start, end) {
   item.start = start || ""; item.end = end || "";
   setTrip(t);
 }
+function addDays(v, n) {
+  const d = new Date(v + "T12:00:00");
+  if (isNaN(d)) return "";
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
 function fmtDates(item) {
   if (!item || !item.start) return "";
   const f = (v) => { const d = new Date(v + "T12:00:00"); return isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
@@ -487,7 +494,7 @@ function paintTrip(root) {
   const bar = document.getElementById("trip-bar"); if (!bar) return;
   const t = getTrip().filter((i) => DATA.cities[i.city]);
   const expCount = t.reduce((n, i) => n + ((i.exp || []).length), 0);
-  if (!t.length) { bar.classList.remove("show"); return; }
+  if (!t.length) { bar.classList.remove("show"); document.body.classList.remove("has-trip"); return; }
   const label = document.getElementById("trip-label");
   if (label) label.textContent = "Your trip: " + t.map((i) => DATA.cities[i.city].name + fmtDates(i)).join(" · ") + (expCount ? " + " + expCount + " experience" + (expCount > 1 ? "s" : "") : "");
   const build = document.getElementById("trip-build");
@@ -498,11 +505,16 @@ function paintTrip(root) {
     if (exps.length) u.set("interest", exps.join(", "));
     if (first.start) u.set("start", first.start);
     if (first.end) u.set("end", first.end);
+    else if (first.start) u.set("end", addDays(first.start, 2));
     const note = noteFor(first.city);
     if (note) u.set("note", note);
     build.setAttribute("href", "/plan?" + u.toString());
   }
-  bar.classList.add("show");
+  // Never float over the pop-up: while a place card is open the bar steps
+  // aside, and the page gains bottom room so the bar never covers content.
+  const modalOpen = document.getElementById("modal-veil")?.classList.contains("open");
+  bar.classList.toggle("show", !modalOpen);
+  document.body.classList.toggle("has-trip", !modalOpen);
 }
 function toggleSave(id) {
   let list = getList();
@@ -565,20 +577,38 @@ function wireModal() {
   box.querySelectorAll("[data-open-city]").forEach((b) => { b.onclick = () => openModal("city", b.getAttribute("data-open-city")); });
   box.querySelectorAll("[data-open-country]").forEach((b) => { b.onclick = () => openModal("country", b.getAttribute("data-open-country")); });
   bindCards(box);
-  // Trip dates in the pop-up: prefill from the trip, save on change.
+  // Trip dates in the pop-up: prefill from the trip, validate, then save.
+  // Rules: the end can't be earlier than the start, and two places in one
+  // trip can't share the same days.
   const tripBtn = box.querySelector("[data-addtrip]");
-  const dateIns = box.querySelectorAll("[data-tripdate]");
-  if (tripBtn && dateIns.length) {
+  const startIn = box.querySelector('[data-tripdate="start"]');
+  const endIn = box.querySelector('[data-tripdate="end"]');
+  if (tripBtn && startIn && endIn) {
     const cid = tripBtn.getAttribute("data-addtrip");
     const item = getTrip().find((i) => i.city === cid);
-    dateIns.forEach((inp) => {
-      if (item) inp.value = (inp.getAttribute("data-tripdate") === "start" ? item.start : item.end) || "";
-      inp.onchange = () => {
-        const s = box.querySelector('[data-tripdate="start"]');
-        const e = box.querySelector('[data-tripdate="end"]');
-        setTripDates(cid, s ? s.value : "", e ? e.value : "");
-      };
-    });
+    if (item) { startIn.value = item.start || ""; endIn.value = item.end || ""; }
+    if (startIn.value) endIn.min = startIn.value;
+    const msg = box.querySelector("[data-tripdate-msg]");
+    const validateDates = (from) => {
+      if (startIn.value && !endIn.value) endIn.value = addDays(startIn.value, 2);
+      // Moving the start past the end pushes the end along (checkout
+      // follows check-in); picking an earlier end by hand is refused.
+      if (from === "start" && startIn.value && endIn.value && endIn.value < startIn.value) endIn.value = addDays(startIn.value, 2);
+      endIn.min = startIn.value || "";
+      const s = startIn.value, e = endIn.value;
+      let err = "";
+      if (s && e && e < s) err = "The end date is before the start date — pick an end date on or after the start.";
+      if (!err && s && e) {
+        const clash = getTrip().find((i) => i.city !== cid && i.start && i.end && s <= i.end && i.start <= e);
+        if (clash) err = "Those days overlap your " + ((DATA.cities[clash.city] || {}).name || "other place") + " stay (" + clash.start + " → " + clash.end + "). One trip can't be in two places on the same days — adjust one of them.";
+      }
+      if (msg) { msg.textContent = err; msg.style.display = err ? "block" : "none"; }
+      endIn.style.borderColor = err ? "#b03a2e" : "";
+      startIn.style.borderColor = err ? "#b03a2e" : "";
+      if (!err) setTripDates(cid, s, e);
+    };
+    startIn.onchange = () => validateDates("start");
+    endIn.onchange = () => validateDates("end");
   }
   box.querySelectorAll("[data-savenote]").forEach((b) => {
     b.onclick = () => {
@@ -608,7 +638,8 @@ function openModal(kind, id, focus) {
       '<div class="msec" id="trip-anchor"><h4>Add to your trip — dates &amp; picks</h4>' +
       '<div class="toolsrow"><label style="font-size:13px;color:var(--line);">From<br><input type="date" data-tripdate="start" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label>' +
       '<label style="font-size:13px;color:var(--line);">To<br><input type="date" data-tripdate="end" style="font:inherit;padding:7px 8px;border:1px solid #c9c0aa;border-radius:8px;"></label></div>' +
-      '<p class="note">Pick dates here and experiences from the list below — everything is saved to your trip, and <strong>Build my plan</strong> (in the bar at the bottom) plans with those dates and picks. Choosing dates or an experience adds ' + c.name + ' to your trip.</p></div>' +
+      '<p class="note">Pick dates here and experiences from the list below — everything is saved to your trip, and <strong>Build my plan</strong> (in the bar at the bottom) plans with those dates and picks. Choosing dates or an experience adds ' + c.name + ' to your trip.</p>' +
+      '<p class="note" data-tripdate-msg style="display:none;color:#b03a2e;font-weight:bold;"></p></div>' +
       (c.best_season ? '<div class="msec"><h4>Nomad essentials</h4><div class="hoods">' +
         [["Best season", c.best_season], ["From Miami", c.flight_from_miami], ["Time zone", c.time_zone], ["SIM and data", c.sim_cost], ["English", c.english_level], ["Getting around", c.getting_around], ["The scene", c.scene]]
           .filter((pair) => pair[1]).map((pair) => '<div class="hood"><b>' + pair[0] + '</b>' + pair[1] + '</div>').join("") +
@@ -649,6 +680,7 @@ function openModal(kind, id, focus) {
   }
   veil.classList.add("open");
   wireModal();
+  paintTrip(document);
   paintPlanLinks(box);
   if (focus === "note") { const ta = box.querySelector("#note-text"); if (ta) { ta.scrollIntoView({ block: "center" }); ta.focus(); } }
   if (focus === "trip") { const el = box.querySelector("#trip-anchor"); if (el) el.scrollIntoView({ block: "center" }); }
@@ -795,8 +827,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (bb) { const onS = () => { bb.style.transform = "translateY(" + Math.min(window.scrollY * 0.2, 80) + "px)"; }; addEventListener("scroll", onS, { passive: true }); onS(); }
   const veil = document.getElementById("modal-veil");
   if (veil) {
-    veil.addEventListener("click", (e) => { if (e.target === veil || e.target.hasAttribute("data-close")) veil.classList.remove("open"); });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") veil.classList.remove("open"); });
+    veil.addEventListener("click", (e) => { if (e.target === veil || e.target.hasAttribute("data-close")) { veil.classList.remove("open"); paintTrip(document); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { veil.classList.remove("open"); paintTrip(document); } });
   }
 });
 `;
@@ -1190,7 +1222,7 @@ export function renderHowItWorks() {
     <section class="panel" style="margin:14px 0;"><h3>Features adapted from the production catalog</h3>
       <ul class="clean">
         <li><strong>Experience cards:</strong> priced experiences from the record, with <strong>Add experience to trip</strong>. Adding one puts it in your trip (below) — no fake booking partner and no payment.</li>
-        <li><strong>Trip-first planning (Nov 4):</strong> like the live Outgrid, <strong>Build my plan</strong> only appears once your trip holds at least one destination or experience. Clicking Add to trip opens the place's card first — it asks for your dates and lists the experiences to pick, add-to-cart style. The trip bar at the bottom collects everything, Build carries the first place with its dates, experiences, and your note into the planner, and the plan page shows a “Your trip — what you picked” summary so every choice is visible before you build.</li>
+        <li><strong>Trip-first planning (Nov 4):</strong> like the live Outgrid, <strong>Build my plan</strong> only appears once your trip holds at least one destination or experience. Clicking Add to trip opens the place's card first — it asks for your dates and lists the experiences to pick, add-to-cart style. Dates are validated in the card: an end before the start is refused, and two places in one trip can't share the same days. The trip bar at the bottom collects everything, Build carries the first place with its dates, experiences, and your note into the planner, and the plan page shows a “Your trip — what you picked” summary so every choice is visible before you build.</li>
         <li><strong>Maps (Nov 4):</strong> destination and plan pages carry a real map panel — OpenStreetMap tiles centred on the coordinates held in the place's own record (the same coordinates Locate me uses), drawn with plain tile images so it works inside the demo's strict security policy.</li>
         <li><strong>Locate me:</strong> the browser finds the nearest of the 16 snapshot places using coordinates already in the records. The location is used in the browser only and is not stored.</li>
         <li><strong>Stay Rules:</strong> a five-country snapshot edition. It publishes only stay and tax fields present in the records, all flagged unverified, with the not-advice disclaimer.</li>
