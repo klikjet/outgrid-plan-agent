@@ -107,10 +107,18 @@ which asks for dates and lists its experiences to pick — add-to-cart
 with options — and everything chosen is kept in a browser-side trip. A
 trip bar collects the picks, Build carries the first place with its
 dates, experiences, and the visitor's note into the intake, and the
-intake opens with a “Your trip — what you picked” summary (dates and
-picks pre-filled) so every choice is visible before building. A bare
+intake opens with a “Your trip — what you picked” summary so every
+choice is visible before building; the form itself no longer asks for
+a destination or dates at all — they travel with the plan from the
+picks — and the accommodation-tier field came off the form. A bare
 visit to the plan form explains the flow instead of showing the
-button. The homepage browse gained a sticky
+button. The welcome pop-up now also asks new visitors for their
+passport once (kept in the browser), and it pre-fills the planner and
+frames the visa & stay pages. Finally, the bundled stats grids in the
+place pop-ups and on destination/country pages became individual
+info bubbles — one compartment per fact (cost of living, internet,
+safety, stay length, US travel advisory), each with an icon, the
+number, and a plain-English read. The homepage browse gained a sticky
 sidebar — Explore links plus the classic filters (max budget, Nomad
 Score band, place type, sort). Submitting the plan form now opens a
 progress panel that names the stage (Planner drafting → Verifier
