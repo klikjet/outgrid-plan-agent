@@ -80,6 +80,25 @@ Production features that need partner keys, licences, accounts, or live
 feeds (Stay22, GetYourGuide, Viator, Stripe, Supabase) were deliberately
 **not** recreated; `/how-it-works` says why, item by item.
 
+**Nov 4 release (submission day):** the card and trip-tools refresh.
+Every place card now carries icon-labelled facts (monthly cost, Wi-Fi
+with a plain-English read, safety), badges computed from the record's
+own numbers (Nomad Score, under-$1,300/month, fast Wi-Fi), and
+always-visible buttons in Outgrid's own words — **Add to trip**,
+**Save**, **Note**, **Details** — with **Add experience to trip** on
+experiences. Saves and notes are kept in the visitor's browser (no
+account, nothing sent to a server); a note written on a place is passed
+to the Planner as an interest when that place is added to a trip. A new
+[**Visa & stay, by passport**](https://outgrid-plan-agent.onrender.com/visa)
+page frames each country's long-stay route from the records (route,
+duration, cost, income bar) around the visitor's chosen passport — and
+states plainly that per-passport tourist entry is not in the snapshot
+rather than guessing it; the same snapshot, keyed to the intake
+nationality, appears on the plan page. A first-visit **welcome pop-up**
+explains the demo in four short rows. All AI roles remain Meta Muse
+models only (see Models above); these features add no new model and no
+new data — the grounding rule is unchanged.
+
 **Hero eval (Oct 29, 2026):** the full pipeline ran live for one city
 per country — Bacalar, Chiang Mai, Lisbon, Medellín, and Canggu. All
 five plans published: **51 claims checked, 51 supported, 0 dropped,
@@ -173,12 +192,17 @@ The CLI prints a 3-day plan JSON in the exact Planner output contract
 it came from, and Bacalar's missing rent figure is flagged
 `unverifiable` — never estimated.
 
-**Judge test path (2 minutes):** open the live demo →
-[`/evidence`](https://outgrid-plan-agent.onrender.com/evidence) for the
-saved verified plan, its run log, and the proof test side-by-side →
+**Judge test path (2 minutes):** open the live demo (a one-time
+welcome pop-up explains it in four rows) → on any card, try **Save**
+and **Note**, then **Add to trip** — the note you wrote arrives in the
+planner as an interest → read the plan's **Stay & visa snapshot** for
+your passport, or open
+[`/visa`](https://outgrid-plan-agent.onrender.com/visa) and pick a
+passport → [`/evidence`](https://outgrid-plan-agent.onrender.com/evidence)
+for the saved verified plan, its run log, and the proof test
+side-by-side →
 [`/verified-plan`](https://outgrid-plan-agent.onrender.com/verified-plan)
-to read the checked plan with citations → build your own plan from any
-destination's **Plan** button → skim
+to read the checked plan with citations → skim
 [`/stay-rules`](https://outgrid-plan-agent.onrender.com/stay-rules) and
 [`/how-it-works`](https://outgrid-plan-agent.onrender.com/how-it-works).
 Tests: `npm test` (grounding + pipeline state machine, scripted
@@ -189,7 +213,8 @@ Never commit a real key to this public repository.
 ## Status
 
 Live demo: https://outgrid-plan-agent.onrender.com — cinematic browse
-(billboard, rails, hover cards, detail modal, My List), classic filters,
+(billboard, rails, action cards with Add to trip / Save / Note,
+detail pop-up, My List), classic filters,
 natural-language search, and the live Planner → Verifier pipeline when
 the server holds its API keys (a public /health/models page reports
 per-model status). First live run + proof test passed Oct 28 — see
