@@ -99,6 +99,25 @@ explains the demo in four short rows. All AI roles remain Meta Muse
 models only (see Models above); these features add no new model and no
 new data — the grounding rule is unchanged.
 
+**Later on Nov 4:** the trip-first flow, a browse sidebar, plan-build
+feedback, maps, and sharper heroes. Following the live Outgrid,
+**Build my plan** now appears only once a visitor's trip holds at least
+one destination or experience: Add to trip / Add experience to trip
+toggle places into a browser-kept trip, a trip bar collects them, and
+Build carries the first place, its experiences, and the visitor's note
+into the intake (a bare visit to the plan form explains the flow
+instead of showing the button). The homepage browse gained a sticky
+sidebar — Explore links plus the classic filters (max budget, Nomad
+Score band, place type, sort). Submitting the plan form now opens a
+progress panel that names the stage (Planner drafting → Verifier
+checking), since a checked plan takes about a minute. Destination and
+plan pages carry a real map: OpenStreetMap tiles (the one host added
+to the CSP) centred on the `lat`/`lng` held in each place's own record.
+Hero artwork for Bacalar, Lisbon, Medellín, and Chiang Mai was
+regenerated with Muse Image at 1920px+ and re-cut wide (1088–1280px,
+up from 896×512) so heroes no longer upscale into pixelation; file
+sizes stay small because the repo transports images as base64 text.
+
 **Hero eval (Oct 29, 2026):** the full pipeline ran live for one city
 per country — Bacalar, Chiang Mai, Lisbon, Medellín, and Canggu. All
 five plans published: **51 claims checked, 51 supported, 0 dropped,
