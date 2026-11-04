@@ -104,7 +104,10 @@ feedback, maps, and sharper heroes. Following the live Outgrid,
 **Build my plan** now appears only once a visitor's trip holds at least
 one destination or experience: Add to trip opens the place's card,
 which asks for dates and lists its experiences to pick — add-to-cart
-with options — and everything chosen is kept in a browser-side trip. A
+with options — and everything chosen is kept in a browser-side trip.
+Dates are validated in the card (an end before the start is refused;
+two places in one trip can't share the same days), and the trip bar
+steps aside while a place card is open so it never covers buttons. A
 trip bar collects the picks, Build carries the first place with its
 dates, experiences, and the visitor's note into the intake, and the
 intake opens with a “Your trip — what you picked” summary so every
